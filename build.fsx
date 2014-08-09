@@ -23,7 +23,7 @@ Target "Restore" (fun _ ->
 Target "Build" (fun _ ->
     !! "src/**/*.fsproj"
     |> MSBuildRelease srcDir "Build" 
-    |> Log "Build Source: "
+    |> Log "Build Source: ")
 
 // Publish
 
