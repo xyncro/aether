@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <title>@project@</title>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
+    <projectUrl>https://github.com/xyncro/aether</projectUrl>
+    <licenseUrl>https://github.com/xyncro/aether/blob/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Total/Partial Lenses for F#</description>
+    <tags>lens lenses f#</tags>
+    <copyright>Copyright Xyncro Ltd 2014</copyright>
+    @dependencies@
+  </metadata>
+  @files@
+</package>
