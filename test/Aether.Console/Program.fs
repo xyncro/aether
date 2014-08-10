@@ -1,4 +1,6 @@
-﻿open Aether
+﻿open System
+open System.Text
+open Aether
 
 // Types (with Lenses)
 
@@ -39,12 +41,16 @@ let a : A =
           One = "Goodbye"
           Two = Some "Universe" } }
 
+// Helpers 
+
+let rev (s: string) = String (Array.rev (s.ToCharArray ()))
+
 // Main
 
 [<EntryPoint>]
 let main _ =
 
-    let a1b1TT = A.oneT >--> B.oneT
+    let a1b1TT = A.oneT >--> B.oneT >--> (isoT rev rev)
     let a1b2TT = A.oneT >--> B.twoT
 
     let a2b1PT = A.twoP >?-> B.oneT
@@ -53,7 +59,7 @@ let main _ =
     let a2b2PP = A.twoP >??> B.twoP
     let a2b2PT = A.twoP >?-> B.twoT
 
-    let x = getP a2b2PT a
-
+    let x = getT a1b1TT a
+    let amod = setT a1b1TT "Hello" a
 
     0

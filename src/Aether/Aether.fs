@@ -79,3 +79,17 @@ module Operators =
 
     /// Compose two Partial lenses, giving a Partial lens
     let (>??>) (p1: LensP<'a,'b>) (p2: LensP<'b,'c>) : LensP<'a,'c> = partialPartial p1 p2
+
+
+[<AutoOpen>]
+module Lenses =
+
+    // Isomorphisms
+
+    /// Total Isomorphism of 'a -> 'b giving a Total lens
+    let isoT (ab: 'a -> 'b) (ba: 'b -> 'a) : LensT<'a,'b> =
+        (fun a -> ab a), (fun b _ -> ba b)
+
+    /// Partial Isomorphism of 'a -> 'b giving a Partial lens
+    let isoP (ab: 'a -> 'b option) (ba: 'b -> 'a) : LensP<'a, 'b> =
+        (fun a -> ab a), (fun b _ -> ba b)
