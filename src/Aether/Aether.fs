@@ -36,30 +36,46 @@ module Functions =
 [<AutoOpen>]
 module internal Composition =
 
-    let tx l1 l2  =
-        (fun a -> getL l2 (getL l1 a)),
-        (fun c a -> setL l1 (setL l2 c (getL l1 a)) a)
+    // Partial
 
-    let pt (l1: LensP<'a,'b>) (l2: LensT<'b,'c>) = //: LensP<'a,'c> =
-        (fun a -> Option.map (getL l2) (getL l1 a )),
-        (fun c a -> a)
+    let private partialTotalGet l1 l2 =
+        fun a -> Option.map (getL l2) (getL l1 a )
 
-    let pp l1 l2 =
-        (fun a -> Option.bind (getL l2) (getL l1 a)),
-        (fun c a -> Option.map (setL l2 c) (getL l1 a) |> function | Some b -> setL l1 b a | _ -> a)
+    let private partialPartialGet l1 l2 =
+        fun a -> Option.bind (getL l2) (getL l1 a)
+
+    let private partialSet l1 l2 =
+        fun c a -> Option.map (setL l2 c) (getL l1 a) |> function | Some b -> setL l1 b a | _ -> a
+
+    let partialTotal l1 l2 =
+        partialTotalGet l1 l2, partialSet l1 l2
+
+    let partialPartial l1 l2 =
+        partialPartialGet l1 l2, partialSet l1 l2
+
+    // Total
+
+    let private totalGet l1 l2 =
+        fun a -> getL l2 (getL l1 a)
+
+    let private totalSet l1 l2 =
+        fun c a -> setL l1 (setL l2 c (getL l1 a)) a
+
+    let totalStar l1 l2  =
+        totalGet l1 l2, totalSet l1 l2
 
 
 [<AutoOpen>]
 module Operators =
 
     /// Compose two Total lenses, giving a Total lens
-    let (>-->) (t1: LensT<'a,'b>) (t2: LensT<'b,'c>) : LensT<'a,'c> = tx t1 t2
+    let (>-->) (t1: LensT<'a,'b>) (t2: LensT<'b,'c>) : LensT<'a,'c> = totalStar t1 t2
 
     /// Compose a Total lens and a Partial lens, giving a Partial lens
-    let (>-?>) (t1: LensT<'a,'b>) (p1: LensP<'b,'c>) : LensP<'a,'c> = tx t1 p1
+    let (>-?>) (t1: LensT<'a,'b>) (p1: LensP<'b,'c>) : LensP<'a,'c> = totalStar t1 p1
 
     /// Compose a Total lens and a Partial lens, giving a Partial lens
-    let (>?->) (p1: LensP<'a,'b>) (t1: LensT<'b,'c>) : LensP<'a,'c> = pt p1 t1
+    let (>?->) (p1: LensP<'a,'b>) (t1: LensT<'b,'c>) : LensP<'a,'c> = partialTotal p1 t1
 
     /// Compose two Partial lenses, giving a Partial lens
-    let (>??>) (p1: LensP<'a,'b>) (p2: LensP<'b,'c>) : LensP<'a,'c> = pp p1 p2
+    let (>??>) (p1: LensP<'a,'b>) (p2: LensP<'b,'c>) : LensP<'a,'c> = partialPartial p1 p2

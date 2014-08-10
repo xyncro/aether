@@ -2,66 +2,58 @@
 
 // Types (with Lenses)
 
-type Details =
-    { Name: string
-      Timing: Timing
-      Prefix: Prefix option }
+type A =
+    { One: B 
+      Two: B option }
 
-    static member nameT =
-        (fun x -> x.Name), (fun n x -> { x with Name = n })
+    static member oneT =
+        (fun x -> x.One), (fun o x -> { x with A.One = o })
 
-    static member timingT =
-        (fun x -> x.Timing), (fun t x -> { x with Timing = t })
+    static member twoP =
+        (fun x -> x.Two), (fun t x -> { x with A.Two = Some t })
 
-    static member prefixP =
-        (fun x -> x.Prefix), (fun p x -> { x with Prefix = Some p })
+    static member twoT =
+        (fun x -> x.Two), (fun t x -> { x with A.Two = t })
 
-and Timing =
-    { Age: int
-      Other: string option }
+and B =
+    { One: string
+      Two: string option }
 
-    static member ageT =
-        (fun x -> x.Age), (fun a x -> { x with Age = a })
+    static member oneT =
+        (fun x -> x.One), (fun o x -> { x with B.One = o })
 
-    static member otherP =
-        (fun x -> x.Other), (fun o x -> { x with Other = Some o })
+    static member twoP =
+        (fun x -> x.Two), (fun t x -> { x with B.Two = Some t })
 
-    static member otherT =
-        (fun x -> x.Other), (fun o x -> { x with Other = o })
+    static member twoT =
+        (fun x -> x.Two), (fun t x -> { x with B.Two = t })
 
-and Prefix =
-    { Title: string option }
+// Example
 
-    static member titleP =
-        (fun x -> x.Title), (fun t x -> { x with Title = Some t })
+let a : A =
+    { One = 
+        { One = "Hello"
+          Two = Some "World" }
+      Two =
+        Some {
+          One = "Goodbye"
+          Two = Some "Universe" } }
 
 // Main
 
 [<EntryPoint>]
 let main _ =
 
-    let example =
-        { Name = "Andrew"
-          Timing =
-            { Age = 33
-              Other = Some "foo" }
-          Prefix =
-            Some {
-              Title = Some "Mr" } }
-    
-    let ageT = Details.timingT >--> Timing.ageT
-    let titleP = Details.prefixP >??> Prefix.titleP
-    let otherP = Details.timingT >-?> Timing.otherP
+    let a1b1TT = A.oneT >--> B.oneT
+    let a1b2TT = A.oneT >--> B.twoT
 
-    let age = getT ageT example
-    let ex1 = setT ageT 34 example
-    let ex2 = updT ageT ((*) 2) example
+    let a2b1PT = A.twoP >?-> B.oneT
 
-    let title = getP titleP example
-    let ex3 = setP titleP "Dr" example
-    let ex4 = updP titleP (String.replicate 3) example
+    let a1b2TP = A.oneT >-?> B.twoP
+    let a2b2PP = A.twoP >??> B.twoP
+    let a2b2PT = A.twoP >?-> B.twoT
 
-    let other = getP otherP example
-    let ex5 = setP otherP "bar" example
+    let x = getP a2b2PT a
+
 
     0
