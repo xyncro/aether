@@ -2,6 +2,7 @@
 open System.Text
 open Aether
 open Aether.Operators
+open Aether.Operators.Infix
 
 // Types (with Lenses)
 

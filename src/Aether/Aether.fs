@@ -37,41 +37,37 @@ module Functions =
 
 
 [<AutoOpen>]
-module internal Composition =
-
-    let composeGet l1 l2 =
-        fun a -> get l2 (get l1 a)
-
-    let composePartialTotalGet l1 l2 =
-        fun a -> Option.map (get l2) (get l1 a)
-
-    let composePartialPartialGet l1 l2 =
-        fun a -> Option.bind (get l2) (get l1 a)
-
-    let composeSet l1 l2 =
-        fun c a -> set l1 (set l2 c (get l1 a)) a
-
-    let composePartialSet l1 l2 =
-        fun c a -> Option.map (set l2 c) (get l1 a) |> function | Some b -> set l1 b a | _ -> a
-
-
-[<AutoOpen>]
 module Compositors =
 
+    let internal composeGet l1 l2 =
+        fun a -> get l2 (get l1 a)
+
+    let internal composePartialTotalGet l1 l2 =
+        fun a -> Option.map (get l2) (get l1 a)
+
+    let internal composePartialPartialGet l1 l2 =
+        fun a -> Option.bind (get l2) (get l1 a)
+
+    let internal composeSet l1 l2 =
+        fun c a -> set l1 (set l2 c (get l1 a)) a
+
+    let internal composePartialSet l1 l2 =
+        fun c a -> Option.map (set l2 c) (get l1 a) |> function | Some b -> set l1 b a | _ -> a
+
     /// Compose two lenses
-    let (>-->) (l1: Lens<'a,'b>) (l2: Lens<'b,'c>) : Lens<'a,'c> =
+    let composeTT (l1: Lens<'a,'b>) (l2: Lens<'b,'c>) : Lens<'a,'c> =
         composeGet l1 l2, composeSet l1 l2
 
     /// Compose a lens and a partial lens, giving a partial lens
-    let (>-?>) (l1: Lens<'a,'b>) (l2: PLens<'b,'c>) : PLens<'a,'c> =
+    let composeTP (l1: Lens<'a,'b>) (l2: PLens<'b,'c>) : PLens<'a,'c> =
         composeGet l1 l2, composeSet l1 l2
 
-    /// Compose a lens and a partial lens, giving a partial lens
-    let (>?->) (l1: PLens<'a,'b>) (l2: Lens<'b,'c>) : PLens<'a,'c> =
+    /// Compose a partial lens and a lens, giving a partial lens
+    let composePT (l1: PLens<'a,'b>) (l2: Lens<'b,'c>) : PLens<'a,'c> =
         composePartialTotalGet l1 l2, composePartialSet l1 l2
 
-    /// Compose two partial lenses, giving partial lens
-    let (>??>) (l1: PLens<'a,'b>) (l2: PLens<'b,'c>) : PLens<'a,'c> =
+    /// Compose two partial lenses, giving a partial lens
+    let composePP (l1: PLens<'a,'b>) (l2: PLens<'b,'c>) : PLens<'a,'c> =
         composePartialPartialGet l1 l2, composePartialSet l1 l2
 
 
@@ -114,29 +110,47 @@ module Lenses =
         Map.tryFind k, Map.add k
 
 
-/// Optional infix operators for working with lenses
 module Operators =
 
-    /// Get a value using a lens
-    let (^.) (l: Lens<'a,'b>) (a: 'a) : 'b =
-        getL l a
+    /// Compose two lenses
+    let (>-->) l1 l2 =
+        composeTT l1 l2
 
-    /// Get a value using a partial lens
-    let (^?.) (l: PLens<'a,'b>) (a: 'a) : 'b option =
-        getPL l a
+    /// Compose a lens and a partial lens, giving a partial lens
+    let (>-?>) l1 l2 =
+        composeTP l1 l2
 
-    /// Set a value using a lens
-    let (^=) (l: Lens<'a,'b>) (b: 'b) : 'a -> 'a =
-        setL l b
+    /// Compose a partial lens and a lens, giving a partial lens
+    let (>?->) l1 l2 =
+        composePT l1 l2
 
-    /// Set a value using a partial lens
-    let (^?=) (l: PLens<'a,'b>) (b: 'b) : 'a -> 'a =
-        setPL l b
+    /// Compose two partial lenses, giving a partial lens
+    let (>??>) l1 l2 =
+        composePP l1 l2
 
-    /// Modify a value using a lens
-    let (^%=) (l: Lens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
-        modL l f
 
-    /// Modify a value using a partial lens
-    let (^?%=) (l: PLens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
-        modPL l f
+    module Infix =
+
+        /// Get a value using a lens
+        let (^.) (l: Lens<'a,'b>) (a: 'a) : 'b =
+            getL l a
+
+        /// Get a value using a partial lens
+        let (^?.) (l: PLens<'a,'b>) (a: 'a) : 'b option =
+            getPL l a
+
+        /// Set a value using a lens
+        let (^=) (l: Lens<'a,'b>) (b: 'b) : 'a -> 'a =
+            setL l b
+
+        /// Set a value using a partial lens
+        let (^?=) (l: PLens<'a,'b>) (b: 'b) : 'a -> 'a =
+            setPL l b
+
+        /// Modify a value using a lens
+        let (^%=) (l: Lens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
+            modL l f
+
+        /// Modify a value using a partial lens
+        let (^?%=) (l: PLens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
+            modPL l f
