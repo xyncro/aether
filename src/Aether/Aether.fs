@@ -56,7 +56,7 @@ module internal Composition =
 
 
 [<AutoOpen>]
-module Operators =
+module Compositors =
 
     /// Compose two lenses
     let (>-->) (l1: Lens<'a,'b>) (l2: Lens<'b,'c>) : Lens<'a,'c> =
@@ -73,30 +73,6 @@ module Operators =
     /// Compose two partial lenses, giving partial lens
     let (>??>) (l1: PLens<'a,'b>) (l2: PLens<'b,'c>) : PLens<'a,'c> =
         composePartialPartialGet l1 l2, composePartialSet l1 l2
-
-    /// Get a value using a lens
-    let (^.) (l: Lens<'a,'b>) (a: 'a) : 'b =
-        getL l a
-
-    /// Get a value using a partial lens
-    let (^?.) (l: PLens<'a,'b>) (a: 'a) : 'b option =
-        getPL l a
-
-    /// Set a value using a lens
-    let (^=) (l: Lens<'a,'b>) (b: 'b) : 'a -> 'a =
-        setL l b
-
-    /// Set a value using a partial lens
-    let (^?=) (l: PLens<'a,'b>) (b: 'b) : 'a -> 'a =
-        setPL l b
-
-    /// Modify a value using a lens
-    let (^%=) (l: Lens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
-        modL l f
-
-    /// Modify a value using a partial lens
-    let (^?%=) (l: PLens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
-        modPL l f
 
 
 [<AutoOpen>]
@@ -136,3 +112,31 @@ module Lenses =
     /// Key of a map giving a partial lens
     let mapPLens (k: 'k) : PLens<Map<'k,'v>,'v> =
         Map.tryFind k, Map.add k
+
+
+/// Optional infix operators for working with lenses
+module Operators =
+
+    /// Get a value using a lens
+    let (^.) (l: Lens<'a,'b>) (a: 'a) : 'b =
+        getL l a
+
+    /// Get a value using a partial lens
+    let (^?.) (l: PLens<'a,'b>) (a: 'a) : 'b option =
+        getPL l a
+
+    /// Set a value using a lens
+    let (^=) (l: Lens<'a,'b>) (b: 'b) : 'a -> 'a =
+        setL l b
+
+    /// Set a value using a partial lens
+    let (^?=) (l: PLens<'a,'b>) (b: 'b) : 'a -> 'a =
+        setPL l b
+
+    /// Modify a value using a lens
+    let (^%=) (l: Lens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
+        modL l f
+
+    /// Modify a value using a partial lens
+    let (^?%=) (l: PLens<'a,'b>) (f: 'b -> 'b) : 'a -> 'a =
+        modPL l f

@@ -1,6 +1,7 @@
 ﻿open System
 open System.Text
 open Aether
+open Aether.Operators
 
 // Types (with Lenses)
 
