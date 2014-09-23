@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{DB16B798-065B-4FF7-BAFD-502CD2B0519A}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Console", "test\Aether.Console\Aether.Console.fsproj", "{1AADA1E6-4878-4347-9E1C-2C6C78F31263}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1AADA1E6-4878-4347-9E1C-2C6C78F31263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AADA1E6-4878-4347-9E1C-2C6C78F31263}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AADA1E6-4878-4347-9E1C-2C6C78F31263}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AADA1E6-4878-4347-9E1C-2C6C78F31263}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
