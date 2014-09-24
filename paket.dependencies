@@ -1,0 +1,7 @@
+source http://nuget.org/api/v2
+
+nuget Fake ~> 3.0
+nuget Nuget.CommandLine ~> 2.8
+
+nuget NUnit ~> 2.6
+nuget Unquote ~> 2.2

@@ -23,11 +23,11 @@ module Data =
          (fun b x -> { x with B = Some b }))
 
     let f1 =
-        { A = "a"
-          B = Some "b" }
+        { A = "ab"
+          B = Some "ba" }
 
     let f2 =
-        { A = "a"
+        { A = "ab"
           B = None }
 
 
@@ -35,46 +35,65 @@ module Functions =
 
     [<Test>]
     let ``getL returns correct values`` () =
-        getL firstALens f1 =? "a"
+        getL firstALens f1 =? "ab"
 
     [<Test>]
     let ``getPL returns correct values`` () =
-        getPL firstBPLens f1 =? Some "b"
+        getPL firstBPLens f1 =? Some "ba"
 
     [<Test>]
     let ``setL sets value correctly`` () =
-        setL firstALens "aa" f1 |> fun x -> x.A =? "aa"
+        setL firstALens "ba" f1 |> fun x -> x.A =? "ba"
 
     [<Test>]
     let ``setPL sets value correctly`` () =
-        setPL firstBPLens "bb" f1 |> fun x -> x.B =? Some "bb"
+        setPL firstBPLens "ab" f1 |> fun x -> x.B =? Some "ab"
 
     [<Test>]
     let ``modL modifies values correctly`` () =
-        modL firstALens (fun x -> x + x) f1 |> fun x -> x.A =? "aa"
+        modL firstALens (fun x -> x + x) f1 |> fun x -> x.A =? "abab"
 
     [<Test>]
     let ``modPL modifies values correctly`` () =
-        modPL firstBPLens (fun x -> x + x) f1 |> fun x -> x.B =? Some "bb"
+        modPL firstBPLens (fun x -> x + x) f1 |> fun x -> x.B =? Some "baba"
 
-module Isomorphisms =
 
-    let lens = 
-        firstBPLens 
-        <?-> ((fun x -> x.ToCharArray ()), (fun x -> String (x)))
+module Composition =
+
+    let private chars : Iso<string, char[]> =
+        (fun x -> x.ToCharArray ()), (fun x -> String (x))
+
+    let private rev : Iso<char[], char[]> =
+        (fun x -> Array.rev x), (fun x -> Array.rev x)
 
     [<Test>]
     let ``isomorphism over partial return value when Some`` () =
-        getPL lens f1 =? Some [| 'b' |]
+        getPL (firstBPLens <?-> chars) f1 =? Some [| 'b'; 'a' |]
 
     [<Test>]
     let ``isomorphism over partial return None when None`` () =
-        getPL lens f2 =? None
+        getPL (firstBPLens <?-> chars) f2 =? None
 
     [<Test>]
     let ``isomorphism over partial sets value when Some`` () =
-        setPL lens [| 'b'; 'b' |] f1 |> fun x -> x.B =? Some "bb"
+        setPL (firstBPLens <?-> chars) [| 'a'; 'b' |] f1 |> fun x -> x.B =? Some "ab"
 
     [<Test>]
     let ``isomorphism over partial sets value when None`` () =
-        setPL lens [| 'b'; 'b' |] f2 |> fun x -> x.B =? Some "bb"
+        setPL (firstBPLens <?-> chars) [| 'a'; 'b' |] f2 |> fun x -> x.B =? Some "ab"
+
+    [<Test>]
+    let ``multiple isomorphisms over partial return value when Some`` () =
+        getPL (firstBPLens <?-> chars <?-> rev) f1 =? Some [| 'a'; 'b' |]
+
+    [<Test>]
+    let ``multiple isomorphisms over partial return None when None`` () =
+        getPL (firstBPLens <?-> chars <?-> rev) f2 =? None
+
+    [<Test>]
+    let ``multiple isomorphisms over partial sets value when Some`` () =
+        setPL (firstBPLens <?-> chars <?-> rev) [| 'b'; 'a' |] f1 |> fun x -> x.B =? Some "ab"
+
+    [<Test>]
+    let ``multiple isomorphisms over partial sets value when None`` () =
+        setPL (firstBPLens <?-> chars <?-> rev) [| 'b'; 'a' |] f2 |> fun x -> x.B =? Some "ab"
