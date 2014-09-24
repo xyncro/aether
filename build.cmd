@@ -1,5 +1,10 @@
 @echo off
-if not exist packages\FAKE\tools\Fake.exe ( 
-  .nuget\nuget.exe install FAKE -OutputDirectory packages -ExcludeVersion -Prerelease
+
+if not exist .paket\paket.exe ( 
+  .paket\paket.bootstrapper.exe
 )
+
+.paket\paket.exe install
+
+set encoding=utf-8
 packages\FAKE\tools\FAKE.exe build.fsx %*

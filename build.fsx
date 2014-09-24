@@ -5,13 +5,13 @@ open Fake
 
 // Dirs
 
-let outDir = "./output"
-let srcDir = outDir + "/src"
+let tempDir = "./temp"
+let srcDir = tempDir + "/src"
 
 // Clean
 
 Target "Clean" (fun _ ->
-    CleanDirs [ outDir ])
+    CleanDirs [ tempDir ])
 
 // Restore Packages
 
@@ -32,9 +32,9 @@ Target "Publish" (fun _ ->
         { p with
               Authors = [ "Andrew Cherry" ]
               Project = "Aether"
-              OutputPath = outDir
+              OutputPath = tempDir
               WorkingDir = srcDir
-              Version = "3.1.0"
+              Version = "4.0.0"
               AccessKey = getBuildParamOrDefault "nuget_key" ""
               Publish = hasBuildParam "nuget_key"
               Dependencies = []
