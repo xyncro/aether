@@ -12,7 +12,8 @@ module Data =
 
     type First =
         { A: string
-          B: string option }
+          B: string option
+          C: int list }
 
     let firstALens : Lens<First, string> =
         ((fun x -> x.A),
@@ -22,13 +23,19 @@ module Data =
         ((fun x -> x.B),
          (fun b x -> { x with B = Some b }))
 
+    let firstCLens : Lens<First, int list> =
+        ((fun x -> x.C),
+         (fun c x -> { x with C = c }))
+
     let f1 =
         { A = "ab"
-          B = Some "ba" }
+          B = Some "ba"
+          C = List.empty }
 
     let f2 =
         { A = "ab"
-          B = None }
+          B = None
+          C = [ 1; 2; 3 ] }
 
 
 module Functions =
@@ -56,6 +63,10 @@ module Functions =
     [<Test>]
     let ``modPL modifies values correctly`` () =
         modPL firstBPLens (fun x -> x + x) f1 |> fun x -> x.B =? Some "baba"
+
+    [<Test>]
+    let ``mapL modifies values correctly`` () =
+        mapL firstCLens ((*) 2) f2 |> fun x -> x.C =? [ 2; 4; 6 ]
 
 
 module Composition =
