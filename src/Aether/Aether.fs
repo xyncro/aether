@@ -48,6 +48,14 @@ module Functions =
     let modPL ((g, s): PLens<'a,'b>) = 
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
+    /// Map a function over a list exposed by a total lens
+    let mapL l f =
+        modL l (List.map f)
+
+    /// Map a function over a list exposed by a partial lens
+    let mapPL l f =
+        modPL l (List.map f)
+
 
 [<AutoOpen>]
 module Composition =
@@ -166,12 +174,15 @@ module Operators =
 [<AutoOpen>]
 module Lenses =
 
+    let idLens : Lens<'a,'a> =
+        (fun x -> x), (fun _ x -> x) 
+
     /// First item of a tuple giving a total lens
-    let fstLens (_: 'a * 'b) : Lens<('a * 'b),'a> =
+    let fstLens : Lens<('a * 'b),'a> =
         fst, (fun a t -> a, snd t)
         
     /// Second item of a tuple giving a total lens
-    let sndLens (_: 'a * 'b) : Lens<('a * 'b),'b> =
+    let sndLens : Lens<('a * 'b),'b> =
         snd, (fun b t -> fst t, b)
 
     /// Head of a list giving a partial lens
