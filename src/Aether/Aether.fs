@@ -48,14 +48,6 @@ module Functions =
     let modPL ((g, s): PLens<'a,'b>) = 
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
-    /// Map a function over a list exposed by a total lens
-    let mapL l f =
-        modL l (List.map f)
-
-    /// Map a function over a list exposed by a partial lens
-    let mapPL l f =
-        modPL l (List.map f)
-
 
 [<AutoOpen>]
 module Composition =
