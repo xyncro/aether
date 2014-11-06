@@ -64,10 +64,6 @@ module Functions =
     let ``modPL modifies values correctly`` () =
         modPL firstBPLens (fun x -> x + x) f1 |> fun x -> x.B =? Some "baba"
 
-    [<Test>]
-    let ``mapL modifies values correctly`` () =
-        mapL firstCLens ((*) 2) f2 |> fun x -> x.C =? [ 2; 4; 6 ]
-
 
 module Composition =
 
