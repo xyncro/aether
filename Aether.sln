@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{DB16B798-065B-4FF7-BAFD-502CD2B0519A}"
 EndProject
@@ -30,6 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{CB532515
 		build.fsx = build.fsx
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{01459E38-688E-419F-9610-BCC2DE5B9635}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\Aether.nuspec = nuget\Aether.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +59,6 @@ Global
 		{BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
 		{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD} = {BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}
 		{CB532515-2668-4D57-90E2-5F8490F25E90} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
+		{01459E38-688E-419F-9610-BCC2DE5B9635} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
 	EndGlobalSection
 EndGlobal

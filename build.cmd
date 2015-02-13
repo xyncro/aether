@@ -1,10 +1,14 @@
 @echo off
+cls
 
-if not exist .paket\paket.exe ( 
-  .paket\paket.bootstrapper.exe
+.paket\paket.bootstrapper.exe
+if errorlevel 1 (
+  exit /b %errorlevel%
 )
 
-.paket\paket.exe install
+.paket\paket.exe restore
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
 
-set encoding=utf-8
 packages\FAKE\tools\FAKE.exe build.fsx %*

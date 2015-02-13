@@ -26,33 +26,36 @@ type PIso<'a,'b> = ('a -> 'b option) * ('b -> 'a)
    Functions for using lenses to get, set and modify values within a target
    instance. *)
 
-/// Get a value using a total lens
-let getL ((g, _): Lens<'a,'b>) = 
-    fun a -> g a
+[<RequireQualifiedAccess>]
+module Lens =
 
-/// Get a value option using a partial lens
-let getPL ((g, _): PLens<'a,'b>) = 
-    fun a -> g a
+    /// Get a value using a total lens
+    let get ((g, _): Lens<'a,'b>) = 
+        fun a -> g a
 
-/// Get a value or a default using a partial lens
-let getOrPL ((g, _): PLens<'a,'b>) = 
-    fun b a -> g a |> function | Some b -> b | _ -> b
+    /// Get a value option using a partial lens
+    let getPartial ((g, _): PLens<'a,'b>) = 
+        fun a -> g a
 
-/// Set a value using a total lens
-let setL ((_, s): Lens<'a,'b>) =
-    fun b a -> s b a
+    /// Get a value or a default using a partial lens
+    let getPartialOrElse ((g, _): PLens<'a,'b>) = 
+        fun b a -> g a |> function | Some b -> b | _ -> b
 
-/// Set a value using a partial lens
-let setPL ((_, s): PLens<'a,'b>) =
-    fun b a -> s b a
+    /// Set a value using a total lens
+    let set ((_, s): Lens<'a,'b>) =
+        fun b a -> s b a
 
-/// Modify a value using a total lens
-let modL ((g, s): Lens<'a,'b>) = 
-    fun f a -> s (f (g a)) a
+    /// Set a value using a partial lens
+    let setPartial ((_, s): PLens<'a,'b>) =
+        fun b a -> s b a
 
-/// Modify a value using a partial lens
-let modPL ((g, s): PLens<'a,'b>) = 
-    fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
+    /// Modify a value using a total lens
+    let map ((g, s): Lens<'a,'b>) = 
+        fun f a -> s (f (g a)) a
+
+    /// Modify a value using a partial lens
+    let mapPartial ((g, s): PLens<'a,'b>) = 
+        fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
 (* Compositions
 
@@ -62,45 +65,48 @@ let modPL ((g, s): PLens<'a,'b>) =
    verbose) to use the infix operator forms of these compositions (though note
    that Aether.Operators is not open by default and should be opened explicitly). *)
 
-/// Compose a total lens and a total lens, giving a total lens
-let composeLL ((g1, s1): Lens<'a,'b>) ((g2, s2): Lens<'b,'c>) : Lens<'a,'c> =
-    (fun a -> g2 (g1 a)),
-    (fun c a -> s1 (s2 c (g1 a)) a)
+[<RequireQualifiedAccess>]
+module Compose =
 
-/// Compose a total lens and a partial lens, giving a partial lens
-let composeLPL ((g1, s1): Lens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
-    (fun a -> g2 (g1 a)),
-    (fun c a -> s1 (s2 c (g1 a)) a)
+    /// Compose a total lens and a total lens, giving a total lens
+    let totalLensTotalLens ((g1, s1): Lens<'a,'b>) ((g2, s2): Lens<'b,'c>) : Lens<'a,'c> =
+        (fun a -> g2 (g1 a)),
+        (fun c a -> s1 (s2 c (g1 a)) a)
 
-/// Compose a partial lens and a total lens, giving a partial lens
-let composePLL ((g1, s1): PLens<'a,'b>) ((g2, s2): Lens<'b,'c>) : PLens<'a,'c> =
-    (fun a -> Option.map g2 (g1 a)),
-    (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
+    /// Compose a total lens and a partial lens, giving a partial lens
+    let totalLensPartialLens ((g1, s1): Lens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
+        (fun a -> g2 (g1 a)),
+        (fun c a -> s1 (s2 c (g1 a)) a)
 
-/// Compose two partial lenses, giving a partial lens
-let composePLPL ((g1, s1): PLens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
-    (fun a -> Option.bind g2 (g1 a)),
-    (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
+    /// Compose a partial lens and a total lens, giving a partial lens
+    let partialLensTotalLens ((g1, s1): PLens<'a,'b>) ((g2, s2): Lens<'b,'c>) : PLens<'a,'c> =
+        (fun a -> Option.map g2 (g1 a)),
+        (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
 
-/// Compose a total lens with a total isomorphism, giving a total lens
-let composeLI ((g, s): Lens<'a,'b>) ((f, t): Iso<'b,'c>) : Lens<'a,'c> =
-    (fun a -> f (g a)),
-    (fun c a -> s (t c) a)
+    /// Compose two partial lenses, giving a partial lens
+    let partialLensPartialLens ((g1, s1): PLens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
+        (fun a -> Option.bind g2 (g1 a)),
+        (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
 
-/// Compose a total lens with a partial isomorphism, giving a partial lens
-let composeLPI ((g, s): Lens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
-    (fun a -> f (g a)),
-    (fun c a -> s (t c) a)
+    /// Compose a total lens with a total isomorphism, giving a total lens
+    let totalLensTotalIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Iso<'b,'c>) : Lens<'a,'c> =
+        (fun a -> f (g a)),
+        (fun c a -> s (t c) a)
 
-/// Compose a partial lens with a total isomorphism, giving a partial lens
-let composePLI ((g, s): PLens<'a,'b>) ((f, t): Iso<'b, 'c>) : PLens<'a,'c> =
-    (fun a -> Option.map f (g a)),
-    (fun c a -> s (t c) a)
+    /// Compose a total lens with a partial isomorphism, giving a partial lens
+    let totalLensPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
+        (fun a -> f (g a)),
+        (fun c a -> s (t c) a)
 
-/// Compose a partial lens with a partial isomorphism, giving a partial lens
-let composePLPI ((g, s): PLens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
-    (fun a -> Option.bind f (g a)),
-    (fun c a -> s (t c) a)
+    /// Compose a partial lens with a total isomorphism, giving a partial lens
+    let partialLensTotalIsomorphism ((g, s): PLens<'a,'b>) ((f, t): Iso<'b, 'c>) : PLens<'a,'c> =
+        (fun a -> Option.map f (g a)),
+        (fun c a -> s (t c) a)
+
+    /// Compose a partial lens with a partial isomorphism, giving a partial lens
+    let partialLensPartialIsomorphism ((g, s): PLens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
+        (fun a -> Option.bind f (g a)),
+        (fun c a -> s (t c) a)
 
 (* Lenses
 
@@ -155,35 +161,35 @@ module Operators =
 
     /// Compose a total lens and a total lens, giving a total lens
     let (>-->) l1 l2 =
-        composeLL l1 l2
+        Compose.totalLensTotalLens l1 l2
 
     /// Compose a total lens and a partial lens, giving a partial lens
     let (>-?>) l1 l2 =
-        composeLPL l1 l2
+        Compose.totalLensPartialLens l1 l2
 
     /// Compose a partial lens and a total lens, giving a partial lens
     let (>?->) l1 l2 =
-        composePLL l1 l2
+        Compose.partialLensTotalLens l1 l2
 
     /// Compose two partial lenses, giving a partial lens
     let (>??>) l1 l2 =
-        composePLPL l1 l2
+        Compose.partialLensPartialLens l1 l2
 
     /// Compose a total lens with a total isomorphism, giving a total lens
     let (<-->) l i =
-        composeLI l i
+        Compose.totalLensTotalIsomorphism l i
 
     /// Compose a total lens with a partial isomorphism, giving a partial lens
     let (<-?>) l i =
-        composeLPI l i
+        Compose.totalLensPartialIsomorphism l i
 
     /// Compose a partial lens with a total isomorphism, giving a partial lens
     let (<?->) l i =
-        composePLI l i
+        Compose.partialLensTotalIsomorphism l i
 
     /// Compose a partial lens with a partial isomorphism, giving a partial lens
     let (<??>) l i =
-        composePLPI l i
+        Compose.partialLensPartialIsomorphism l i
 
     (* Function Operators
 
@@ -194,24 +200,24 @@ module Operators =
 
     /// Get a value using a total lens
     let (^.) (a: 'a) (l: Lens<'a,'b>) : 'b =
-        getL l a
+        Lens.get l a
 
     /// Get a value using a partial lens
     let (^?.) (a: 'a) (l: PLens<'a,'b>) : 'b option =
-        getPL l a
+        Lens.getPartial l a
 
     /// Set a value using a total lens
     let (^=) (b: 'b) (l: Lens<'a,'b>) : 'a -> 'a =
-        setL l b
+        Lens.set l b
 
     /// Set a value using a partial lens
     let (^?=) (b: 'b) (l: PLens<'a,'b>) : 'a -> 'a =
-        setPL l b
+        Lens.setPartial l b
 
     /// Modify a value using a total lens
     let (^%=) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
-        modL l f
+        Lens.map l f
 
     /// Modify a value using a partial lens
     let (^?%=) (f: 'b -> 'b) (l: PLens<'a,'b>) : 'a -> 'a =
-        modPL l f
+        Lens.mapPartial l f
