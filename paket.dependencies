@@ -1,0 +1,7 @@
+source http://nuget.org/api/v2
+
+nuget Fake
+nuget Nuget.CommandLine
+
+nuget NUnit
+nuget Unquote
