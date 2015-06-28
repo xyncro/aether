@@ -18,7 +18,7 @@ Because you want to work with records and other immutable datatypes (generally d
 
 The default approach:
 ```fsharp
-let fooWithNewBaz = { foo with bar = { foo.bar with baz = newBaz }}}
+let fooWithNewBaz = { foo with bar = { foo.bar with baz = newBaz } }
 ```
 The lens approach:
 ```fsharp
@@ -37,7 +37,7 @@ A lens is a pair of functions:
 // ('a -> 'b) * ('b -> 'a -> 'a)
 let barLens =
 	let get = fun foo -> foo.bar
-	let set = fun newBar foo -> {foo with bar = newBar}
+	let set = fun newBar foo -> { foo with bar = newBar }
 	(get, set)
 ```
 
@@ -48,16 +48,16 @@ There is presently no way to generate lenses (as there is using Template Haskell
 Lenses are commonly defined using shorthand, and you are encouraged to do so:
 
 ```fsharp
-let barLens = (fun foo -> fo.bar), (fun newBar foo -> {foo with bar = newBar})
+let barLens = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
 ```
 
 ### How do I compose lenses?
 
 ```fsharp
 // Lens from Foo to Bar
-let barLens = (fun foo -> fo.bar), (fun newBar foo -> {foo with bar = newBar})
+let barLens = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
 // Lens from Foo to Baz
-let bazLens = (fun bar -> bar.baz), (fun newBaz bar -> {bar with baz = newBaz})
+let bazLens = (fun bar -> bar.baz), (fun newBaz bar -> { bar with baz = newBaz })
 
 // Combined lens from Foo to Baz
 let fooToBaz = barLens >--> bazLens
