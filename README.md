@@ -8,13 +8,13 @@ Aether is a lens library for F# roughly based on the Haskell Data.Lens package.
 
 ## What is a lens?
 
-Lenses are functional properties; they're pairs of get and 'set' functions that can be composed.
+Lenses are functional properties; they're pairs of 'get' and 'set' functions that can be composed, allowing for useful operations to be built up.
 
 [See this blog post for a brief introduction](https://kolektiv.github.io/fsharp/aether/2014/08/13/aether-guide/)
 
 ## Why should I use a lens?
 
-Because you want to work with records in a consistent and simple way.
+Because you want to work with records and other immutable datatypes (generally data structures that have some level of complexity) in a consistent and simple way.
 
 The default approach:
 ```fsharp
@@ -25,8 +25,7 @@ The lens approach:
 let fooToBazLens = Foo.barLens >--> Bar.bazLens
 let fooWithNewBaz = Lens.set fooToBazLens newBaz
 ```
-
- Lenses can greatly reduce boilerplate for complex type hierarchies.
+Lenses can greatly reduce boilerplate for complex type hierarchies.
 
 ## Usage
 
@@ -44,7 +43,7 @@ let barLens =
 
 ### Can Aether generate lenses?
 
-There is presently no way to generate lenses. [You can vote for lenses as a language feature here](https://fslang.uservoice.com/forums/245727-f-language/suggestions/6906132-implement-first-class-lensing-lenses-in-f)
+There is presently no way to generate lenses (as there is using Template Haskell for Data.Lens). [You can vote for lenses as a language feature here](https://fslang.uservoice.com/forums/245727-f-language/suggestions/6906132-implement-first-class-lensing-lenses-in-f)
 
 Lenses are commonly defined using shorthand, and you are encouraged to do so:
 
@@ -78,15 +77,11 @@ let newFoo = Lens.set fooToBaz newBaz someFoo
 
 ## Other types of lenses:
 
-The above lenses are all total lenses for simplicity. Aether also provides *Partial lenses* and *Isomorphisms*. [See this blog post for precise information](https://kolektiv.github.io/fsharp/aether/2014/08/10/aether/)
+The above lenses are all total lenses for simplicity. Aether also provides *partial lenses* and *isomorphisms*. [See this blog post for precise information](https://kolektiv.github.io/fsharp/aether/2014/08/10/aether/)
 
 ## About
 
-__NOTE: Aether is very new. It almost certainly has horrible and foolish bugs that I haven't found/understood yet. If you wish to try it, feel free to do so, but be aware of that! Pull requests to fix my shortage of talent welcome.__
-
-Aether is a lens library for F# roughly based on the Haskell Data.Lens package. It draws a distinction between Total and Partial lenses, providing separate operators and functions for composing and working with lenses that are either total or partial, along with a few common lenses for F# types.
-
-I've written a couple of blog posts as a quick intro to Aether which might help in addition to the source. They're [here][aether-intro] and [here][aether-guide].
+I've written a couple of blog posts as a quick intro to Aether which might help in addition to this README and the source. They're [here][aether-intro] and [here][aether-guide].
 
 Thanks and acknowledgements must go to the authors of the Haskell lens libraries, and to Mauricio Scheffer for his work on lenses as part of FSharpx.
 
@@ -94,11 +89,9 @@ Thanks and acknowledgements must go to the authors of the Haskell lens libraries
 
 Aether can be installed from [NuGet](https://www.nuget.org/packages/Aether "Aether on NuGet"). Using the Package Manager Console:
 
-
 ```posh
 PM> Install-Package Aether
 ```
-
 
 ## License
 
