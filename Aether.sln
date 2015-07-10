@@ -1,64 +1,55 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{DB16B798-065B-4FF7-BAFD-502CD2B0519A}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E28FCB2A-F9EC-425E-A7E1-27F96994517F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C541CA6B-1CAF-42B2-90FD-49D90ADF5B23}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sln", "sln", "{290F7751-13C8-4266-BB47-A41DD7AB0E08}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "paket", "paket", "{BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{63297B98-5CED-492C-A5B7-A5B4F73CF142}"
 	ProjectSection(SolutionItems) = preProject
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "references", "references", "{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD}"
-	ProjectSection(SolutionItems) = preProject
-		tests\Aether.Tests\Aether.tests.fsproj.paket.references = tests\Aether.Tests\Aether.tests.fsproj.paket.references
-	EndProjectSection
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{6303003A-D024-4268-8991-54B4E9079BCD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{CB532515-2668-4D57-90E2-5F8490F25E90}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"
 	ProjectSection(SolutionItems) = preProject
-		build.cmd = build.cmd
 		build.fsx = build.fsx
+		README.md = README.md
+		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{01459E38-688E-419F-9610-BCC2DE5B9635}"
-	ProjectSection(SolutionItems) = preProject
-		nuget\Aether.nuspec = nuget\Aether.nuspec
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD-2B06-4030-9F0F-DC548F98E1C4}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{B125EE2B-2247-40E2-9B38-CFF9211C0212}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Release-NET35|Any CPU = Release-NET35|Any CPU
+		Release-NET40|Any CPU = Release-NET40|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB16B798-065B-4FF7-BAFD-502CD2B0519A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release-NET35|Any CPU.ActiveCfg = Release-NET35|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release-NET35|Any CPU.Build.0 = Release-NET35|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release-NET40|Any CPU.ActiveCfg = Release-NET40|Any CPU
+		{6303003A-D024-4268-8991-54B4E9079BCD}.Release-NET40|Any CPU.Build.0 = Release-NET40|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release-NET35|Any CPU.ActiveCfg = Release|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release-NET35|Any CPU.Build.0 = Release|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release-NET40|Any CPU.ActiveCfg = Release|Any CPU
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212}.Release-NET40|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{DB16B798-065B-4FF7-BAFD-502CD2B0519A} = {E28FCB2A-F9EC-425E-A7E1-27F96994517F}
-		{FCAD5F76-5605-48BB-9A2C-E5C816AA19C4} = {C541CA6B-1CAF-42B2-90FD-49D90ADF5B23}
-		{BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
-		{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD} = {BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}
-		{CB532515-2668-4D57-90E2-5F8490F25E90} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
-		{01459E38-688E-419F-9610-BCC2DE5B9635} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
+		{B125EE2B-2247-40E2-9B38-CFF9211C0212} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,33 @@
+type project
+owners
+    Andrew Cherry
+authors 
+    Andrew Cherry
+projectUrl
+    http://github.com/xyncro/Aether
+iconUrl
+    https://raw.githubusercontent.com/xyncro/Aether/master/docs/files/img/logo.png
+licenseUrl
+    http://github.com/xyncro/Aether/blob/master/LICENSE.txt
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2015
+tags
+    lens lenses f# property properties
+summary
+    Total/Partial Lenses for F#
+description
+    Aether is a lens library for F# roughly based on the Haskell Data.Lens package.
+references
+    Aether.dll
+files
+    ../../bin/Aether/net45/Aether.dll ==> lib/net45
+    ../../bin/Aether/net45/Aether.pdb ==> lib/net45
+    ../../bin/Aether/net45/Aether.xml ==> lib/net45
+    ../../bin/Aether/net40/Aether.dll ==> lib/net40
+    ../../bin/Aether/net40/Aether.pdb ==> lib/net40
+    ../../bin/Aether/net40/Aether.xml ==> lib/net40
+    ../../bin/Aether/net35/Aether.dll ==> lib/net35
+    ../../bin/Aether/net35/Aether.pdb ==> lib/net35
+    ../../bin/Aether/net35/Aether.xml ==> lib/net35
