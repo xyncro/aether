@@ -22,8 +22,8 @@ let fooWithNewBaz = { foo with bar = { foo.bar with baz = newBaz } }
 ```
 The lens approach:
 ```fsharp
-let fooToBazLens = Foo.barLens >--> Bar.bazLens
-let fooWithNewBaz = Lens.set fooToBazLens newBaz
+let fooToBaz_ = Foo.bar_ >--> Bar.baz_
+let fooWithNewBaz = Lens.set fooToBaz_ newBaz
 ```
 Lenses can greatly reduce boilerplate for complex type hierarchies.
 
@@ -35,7 +35,7 @@ A lens is a pair of functions:
 
 ```fsharp
 // ('a -> 'b) * ('b -> 'a -> 'a)
-let barLens =
+let bar_ =
 	let get = fun foo -> foo.bar
 	let set = fun newBar foo -> { foo with bar = newBar }
 	(get, set)
@@ -48,36 +48,60 @@ There is presently no way to generate lenses (as there is using Template Haskell
 Lenses are commonly defined using shorthand, and you are encouraged to do so:
 
 ```fsharp
-let barLens = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
+let bar_ = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
 ```
 
 ### How do I compose lenses?
 
 ```fsharp
 // Lens from Foo to Bar
-let barLens = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
+let bar_ = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
 // Lens from Foo to Baz
-let bazLens = (fun bar -> bar.baz), (fun newBaz bar -> { bar with baz = newBaz })
+let baz_ = (fun bar -> bar.baz), (fun newBaz bar -> { bar with baz = newBaz })
 
 // Combined lens from Foo to Baz
-let fooToBaz = barLens >--> bazLens
+let fooToBaz_ = bar_ >--> baz_
 ```
 
 ### How do I work with the composed lenses?
 
 ```fsharp
-let fooToBaz = barLens >--> bazLens
+let fooToBaz_ = bar_ >--> baz_
 
 // retrieves the baz from someFoo.
-let baz = Lens.get fooToBaz someFoo
+let baz = Lens.get fooToBaz_ someFoo
 // creates a new foo with the baz updated.
-let newFoo = Lens.set fooToBaz newBaz someFoo
+let newFoo = Lens.set fooToBaz_ newBaz someFoo
 
 ```
 
 ## Other types of lenses:
 
 The above lenses are all total lenses for simplicity. Aether also provides *partial lenses* and *isomorphisms*. [See this blog post for precise information](https://kolektiv.github.io/fsharp/aether/2014/08/10/aether/)
+
+## Conventions
+
+It's handy to have a naming convention for things which are lenses (or like lenses). After discussion, the convention has been that a lens is generally named after the property, with an additional underscore. So if you had a record, you might define a property of that record and the associated lens like so:
+
+```fsharp
+type Foo =
+    { Bar: string }
+
+    static member Bar_ =
+        (fun x -> x.Bar), (fun b x -> { x with Bar = b })
+```
+
+You may also wish to define lenses in modules, where the same convention applies. It is generally expected that the lens name, if it is public, will be capitalized. The alternative approach to providing a lens for the `Bar` type above using a module might look like so:
+
+```fsharp
+[<RequireQualifiedAccess>]
+module Foo =
+
+    let Bar_ =
+        (fun x -> x.Bar), (fun b x -> { x with Bar = b }) 
+```
+
+The convention holds whether the lens is total or partial, and also applies to isomorphisms.
 
 ## About
 
