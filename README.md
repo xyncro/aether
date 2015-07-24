@@ -17,14 +17,23 @@ Lenses are functional properties; they're pairs of 'get' and 'set' functions tha
 Because you want to work with records and other immutable datatypes (generally data structures that have some level of complexity) in a consistent and simple way.
 
 The default approach:
+
 ```fsharp
-let fooWithNewBaz = { foo with bar = { foo.bar with baz = newBaz } }
+let fooWithNewBaz =
+    { foo with Bar =
+        { foo.Bar with Baz = newBaz } }
 ```
+    
 The lens approach:
+
 ```fsharp
-let fooToBaz_ = Foo.bar_ >--> Bar.baz_
-let fooWithNewBaz = Lens.set fooToBaz_ newBaz
+let private fooToBaz_ =
+    Foo.Bar_ >--> Bar.Baz_
+
+let private fooWithNewBaz =
+    Lens.set fooToBaz_ newBaz
 ```
+
 Lenses can greatly reduce boilerplate for complex type hierarchies.
 
 ## Usage
@@ -35,49 +44,58 @@ A lens is a pair of functions:
 
 ```fsharp
 // ('a -> 'b) * ('b -> 'a -> 'a)
-let bar_ =
-	let get = fun foo -> foo.bar
-	let set = fun newBar foo -> { foo with bar = newBar }
+let private bar_ =
+	let get = fun foo -> foo.Bar
+	let set = fun newBar foo -> { foo with Bar = newBar }
 	(get, set)
 ```
 
 ### Can Aether generate lenses?
 
-There is presently no way to generate lenses (as there is using Template Haskell for Data.Lens). [You can vote for lenses as a language feature here](https://fslang.uservoice.com/forums/245727-f-language/suggestions/6906132-implement-first-class-lensing-lenses-in-f)
+There is presently no way to generate lenses (as there is using Template Haskell for Data.Lens). [You can vote for lenses as a language feature here](https://fslang.uservoice.com/forums/245727-f-language/suggestions/6906132-implement-first-class-lensing-lenses-in-f).
 
 Lenses are commonly defined using shorthand, and you are encouraged to do so:
 
 ```fsharp
-let bar_ = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
+let private bar_ =
+    (fun foo -> foo.bar), (fun newBar foo -> { foo with Bar = newBar })
 ```
 
 ### How do I compose lenses?
 
 ```fsharp
 // Lens from Foo to Bar
-let bar_ = (fun foo -> foo.bar), (fun newBar foo -> { foo with bar = newBar })
-// Lens from Foo to Baz
-let baz_ = (fun bar -> bar.baz), (fun newBaz bar -> { bar with baz = newBaz })
+let private bar_ =
+    (fun foo -> foo.Bar), (fun newBar foo -> { foo with Bar = newBar })
+
+// Lens from Bar to Baz
+let private baz_ =
+    (fun bar -> bar.Baz), (fun newBaz bar -> { bar with Baz = newBaz })
 
 // Combined lens from Foo to Baz
-let fooToBaz_ = bar_ >--> baz_
+let private fooToBaz_ =
+    bar_ >--> baz_
 ```
 
 ### How do I work with the composed lenses?
 
 ```fsharp
-let fooToBaz_ = bar_ >--> baz_
+let private fooToBaz_ =
+    bar_ >--> baz_
 
-// retrieves the baz from someFoo.
-let baz = Lens.get fooToBaz_ someFoo
-// creates a new foo with the baz updated.
-let newFoo = Lens.set fooToBaz_ newBaz someFoo
+// Retrieves the Baz from someFoo.
+let private baz =
+    Lens.get fooToBaz_ someFoo
+
+// Creates a new Foo with the Baz updated.
+let private newFoo =
+    Lens.set fooToBaz_ newBaz someFoo
 
 ```
 
 ## Other types of lenses:
 
-The above lenses are all total lenses for simplicity. Aether also provides *partial lenses* and *isomorphisms*. [See this blog post for precise information](https://kolektiv.github.io/fsharp/aether/2014/08/10/aether/)
+The above lenses are all total lenses for simplicity. Aether also provides *partial lenses* and *isomorphisms*. [See this blog post for precise information](https://kolektiv.github.io/fsharp/aether/2014/08/10/aether/).
 
 ## Conventions
 
