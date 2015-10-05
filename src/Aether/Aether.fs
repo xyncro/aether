@@ -116,34 +116,34 @@ module Compose =
    of one or more isomorphisms. Having an id lens enables the root composition. *)
 
 /// Identity lens returning the original item regardless of modifiction
-let idLens : Lens<'a,'a> =
+let id_ : Lens<'a,'a> =
     (fun x -> x), (fun x _ -> x) 
 
 /// First item of a tuple giving a total lens
-let fstLens : Lens<('a * 'b),'a> =
+let fst_ : Lens<('a * 'b),'a> =
     fst, (fun a t -> a, snd t)
         
 /// Second item of a tuple giving a total lens
-let sndLens : Lens<('a * 'b),'b> =
+let snd_ : Lens<('a * 'b),'b> =
     snd, (fun b t -> fst t, b)
 
 /// Head of a list giving a partial lens
-let headPLens : PLens<'v list, 'v> =
+let head_ : PLens<'v list, 'v> =
     (function | h :: _ -> Some h | _ -> None),
     (fun v -> function | _ :: t -> v :: t | l -> l)
 
 /// Position of a list giving a partial lens
-let listPLens (i: int) : PLens<'v list, 'v> =
+let pos_ (i: int) : PLens<'v list, 'v> =
     (function | l when List.length l > i -> Some (List.nth l i) | _ -> None), 
     (fun v l -> List.mapi (fun i' x -> if i = i' then v else x) l)
 
 /// Tail of a list giving a partial lens
-let tailPLens : PLens<'v list, 'v list> =
+let tail_ : PLens<'v list, 'v list> =
     (function | _ :: t -> Some t | _ -> None),
     (fun t -> function | h :: _ -> h :: t | [] -> t)
 
 /// Key of a map giving a partial lens
-let mapPLens (k: 'k) : PLens<Map<'k,'v>,'v> =
+let key_ (k: 'k) : PLens<Map<'k,'v>,'v> =
     Map.tryFind k, Map.add k
 
 (* Operators
