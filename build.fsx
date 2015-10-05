@@ -34,11 +34,11 @@ Target "Publish" (fun _ ->
               Project = "Aether"
               OutputPath = tempDir
               WorkingDir = srcDir
-              Version = "6.0"
+              Version = "7.0"
               AccessKey = getBuildParamOrDefault "nuget_key" ""
               Publish = hasBuildParam "nuget_key"
               Dependencies = []
-              Files = [ "Aether.dll", Some "lib/net40", None ] })
+              Files = [ "Aether.dll", Some "lib/net35", None ] })
               "./nuget/Aether.nuspec")
 
 // Dependencies
