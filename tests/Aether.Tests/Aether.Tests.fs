@@ -379,6 +379,52 @@ let exampleTests =
     testList "Map <--> List Isomorphism" [Iso.followsIsoLawsWithName "Map-to-List" (Map.toList<int,string>, Map.ofList<int,string>)]
   ]
 
+module ``Basic Lens functions`` =
+  [<Fact>]
+  let ``Lens.get returns correct values`` () =
+    Lens.get fst_ ("Good","Bad") =! "Good"
+
+  [<Fact>]
+  let ``Lens.set sets value correctly`` () =
+    Lens.set fst_ "Good" ("Bad",()) =! ("Good",())
+
+  [<Fact>]
+  let ``Lens.map modifies values correctly`` () =
+    Lens.map fst_ (fun x -> x + x) ("Good",()) =! ("GoodGood",())
+
+module ``Basic Prism functions`` =
+  [<Fact>]
+  let ``Lens.getPartial returns correct values for existing values`` () =
+    Lens.getPartial choice1Of2_ (Choice1Of2 "Good") =! Some "Good"
+
+  [<Fact>]
+  let ``Lens.getPartial returns correct value for missing values`` () =
+    Lens.getPartial choice2Of2_ (Choice1Of2 "Bad") =! None
+
+  [<Fact>]
+  let ``Lens.getPartialOrElse returns correct value for existing values`` () =
+    Lens.getPartialOrElse choice1Of2_ "Bad" (Choice1Of2 "Good") =! "Good"
+
+  [<Fact>]
+  let ``Lens.getPartialOrElse returns correct value for missing values`` () =
+    Lens.getPartialOrElse choice2Of2_ "Good" (Choice1Of2 "Bad") =! "Good"
+
+  [<Fact>]
+  let ``Lens.setPartial returns correct values for existing values`` () =
+    Lens.setPartial choice1Of2_ "Good" (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+
+  [<Fact>]
+  let ``Lens.setPartial returns correct value for missing values`` () =
+    Lens.setPartial choice2Of2_ "Bad" (Choice1Of2 "Good") =! Choice1Of2 "Good"
+
+  [<Fact>]
+  let ``Lens.mapPartial modifies values correctly for existing values`` () =
+    Lens.mapPartial choice1Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "GoodGood"
+
+  [<Fact>]
+  let ``Lens.mapPartial modifies values correctly for missing values`` () =
+    Lens.mapPartial choice2Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "Good"
+
 [<Tests>]
 let functionTests =
   testList "Basic Lens functions" [
@@ -415,6 +461,63 @@ let functionTests =
     testCase "Lens.map modifies values correctly for missing values" <| fun _ ->
       Lens.mapPartial choice2Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "Good"
   ]
+
+module ``Isomorphism composition`` =
+  let chars : Iso<string, char[]> =
+    (fun x -> x.ToCharArray ()), (fun x -> String (x))
+
+  let rev : Iso<char[], char[]> =
+    Array.rev, Array.rev
+
+  module ``over a Lens`` =
+    [<Fact>]
+    let ``gets value`` () =
+      Lens.get (fst_ <--> chars) ("Good",()) =! [| 'G'; 'o'; 'o'; 'd' |]
+
+    [<Fact>]
+    let ``sets value`` () =
+      Lens.set (fst_ <--> chars) [| 'G'; 'o'; 'o'; 'd' |] ("Bad",()) =! ("Good",())
+
+    [<Fact>]
+    let ``gets value over multiple isomorphisms`` () =
+      Lens.get (fst_ <--> chars <--> rev) ("dooG",()) =! [| 'G'; 'o'; 'o'; 'd' |]
+
+    [<Fact>]
+    let ``sets value over multiple isomorphisms`` () =
+      Lens.set (fst_ <--> chars <--> rev) [| 'd'; 'o'; 'o'; 'G' |] ("Bad",()) =! ("Good",())
+
+  module ``over a Prism`` =
+    [<Fact>]
+    let ``gets value when inner exists`` () =
+      Lens.getPartial (choice1Of2_ <?-> chars) (Choice1Of2 "Good") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+
+    [<Fact>]
+    let ``gets nothing when inner does not exist`` () =
+      Lens.getPartial (choice2Of2_ <?-> chars) (Choice1Of2 "Bad") =! None
+
+    [<Fact>]
+    let ``sets value when inner exists`` () =
+      Lens.setPartial (choice1Of2_ <?-> chars) [| 'G'; 'o'; 'o'; 'd' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+
+    [<Fact>]
+    let ``sets nothing when inner does not exist`` () =
+      Lens.setPartial (choice2Of2_ <?-> chars) [| 'B'; 'a'; 'd' |] (Choice1Of2 "Good")  =! Choice1Of2 "Good"
+
+    [<Fact>]
+    let ``gets value when inner exists over multiple isomorphisms`` () =
+      Lens.getPartial (choice1Of2_ <?-> chars <?-> rev) (Choice1Of2 "dooG") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+
+    [<Fact>]
+    let ``gets nothing when inner does not exist over multiple isomorphisms`` () =
+      Lens.getPartial (choice2Of2_ <?-> chars <?-> rev) (Choice1Of2 "daB") =! None
+
+    [<Fact>]
+    let ``sets value when inner exists over multiple isomorphisms`` () =
+      Lens.setPartial (choice1Of2_ <?-> chars <?-> rev) [| 'd'; 'o'; 'o'; 'G' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+
+    [<Fact>]
+    let ``sets nothing when inner does not exist over multiple isomorphisms`` () =
+      Lens.setPartial (choice2Of2_ <?-> chars <?-> rev) [| 'd'; 'a'; 'B' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
 [<Tests>]
 let compositionTests =
