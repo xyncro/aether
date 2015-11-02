@@ -1,6 +1,9 @@
 source http://nuget.org/api/v2
 
 nuget Fake
+nuget FSharp.Core >= 3.1.2.5
+nuget FsCheck
+nuget Fuchu
+nuget Fuchu.FsCheck
 nuget Nuget.CommandLine
-nuget NUnit
 nuget Unquote
