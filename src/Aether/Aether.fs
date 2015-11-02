@@ -140,11 +140,11 @@ let pos_ (i: int) : PLens<'v list, 'v> =
 /// Tail of a list giving a partial lens
 let tail_ : PLens<'v list, 'v list> =
     (function | _ :: t -> Some t | _ -> None),
-    (fun t -> function | h :: _ -> h :: t | [] -> t)
+    (fun t -> function | h :: _ -> h :: t | [] -> [])
 
 /// Key of a map giving a partial lens
 let key_ (k: 'k) : PLens<Map<'k,'v>,'v> =
-    Map.tryFind k, Map.add k
+    Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
 
 (* Operators
 
