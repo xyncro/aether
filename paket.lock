@@ -14,12 +14,6 @@ NUGET
       FsCheck (>= 2.2.0)
       xunit.extensibility.execution (>= 2.1.0 < 2.2.0)
     FSharp.Core (3.1.2.5) - redirects: on
-    Fuchu (1.0.1)
-      FSharp.Core (>= 3.1.2.1)
-    Fuchu.FsCheck (1.0.1)
-      FsCheck (>= 2.1.0)
-      FSharp.Core (>= 3.1.2.5)
-      Fuchu (>= 1.0.1.0)
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.0) - framework: dnxcore50
       System.Resources.ResourceManager (>= 4.0.0) - framework: dnxcore50
