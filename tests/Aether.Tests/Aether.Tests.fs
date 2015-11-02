@@ -6,6 +6,7 @@ open Aether.Operators
 open Fuchu
 open FsCheck
 open FsCheck.Xunit
+open global.Xunit
 open Swensen.Unquote
 
 [<AutoOpen>]
@@ -284,6 +285,62 @@ type MapExample =
     static member myMap_ =
       (fun x -> x.MyMap),
       (fun v x -> { x with MyMap = v })
+
+module ``Examplar Usage Tests`` =
+  [<Fact>]
+  let ``Upserting into a Map using a Lens`` () =
+    let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
+    let newValue = Lens.map MapExample.myMap_ (Map.add "TestKey2" "OtherValue") example
+    test <@ newValue.MyMap.["TestKey"] = "TestValue" @>
+    test <@ newValue.MyMap.["TestKey2"] = "OtherValue" @>
+
+  [<Fact>]
+  let ``Updating a value not contained in a Map using a Prism`` () =
+    let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
+    let newValue = Lens.setPartial (MapExample.myMap_ >-?> key_ "TestKey2") "OtherValue" example
+    test <@ newValue.MyMap.TryFind "TestKey2" = None @>
+
+  [<Fact>]
+  let ``Updating a value contained in a Map using a Prism`` () =
+    let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
+    let newValue = Lens.setPartial (MapExample.myMap_ >-?> key_ "TestKey") "OtherValue" example
+    test <@ newValue.MyMap.["TestKey"] = "OtherValue" @>
+
+  [<Fact>]
+  let ``Trying to retreive a value not contained in a Map with a default using a Prism`` () =
+    test <@ Lens.getPartialOrElse (key_ "TestKey") "Default" Map.empty = "Default" @>
+
+  [<Fact>]
+  let ``Trying to retrieve a value contained in a Map using a Prism`` () =
+    test <@ Lens.getPartialOrElse (key_ "TestKey") "Default" (Map.ofList ["TestKey","Hit"]) = "Hit" @>
+
+  [<Fact>]
+  let ``Prepending an element onto a List using a Lens`` () =
+    test <@ Lens.map id_ (fun l -> "Head" :: l) ["Tail"] = ["Head"; "Tail"] @>
+
+  [<Fact>]
+  let ``Appending a List onto aanother List using a Lens`` () =
+    test <@ Lens.map id_ (fun l -> l @ ["Tail"]) ["Head"] = ["Head"; "Tail"] @>
+
+  [<Fact>]
+  let ``Setting the head on an empty List using a Prism`` () =
+    test <@ Lens.setPartial head_ "Bad" [] = [] @>
+
+  [<Fact>]
+  let ``Setting the head on a non-empty List using a Prism`` () =
+    test <@ Lens.setPartial head_ "Good" ["Bad"] = ["Good"] @>
+
+  [<Fact>]
+  let ``Setting the tail on an empty List using a Prism`` () =
+    test <@ Lens.setPartial tail_ ["Bad"] [] = [] @>
+
+  [<Fact>]
+  let ``Setting the tail on a non-empty List using a Prism`` () =
+    test <@ Lens.setPartial tail_ ["Tail"] ["Head"; "Bad"; "Value"] = ["Head"; "Tail"] @>
+
+  [<Fact>]
+  let ``Setting the tail on a single-element List using a Prism`` () =
+    test <@ Lens.setPartial tail_ ["Long"; "Tail"] ["Head"] = ["Head"; "Long"; "Tail"] @>
 
 [<Tests>]
 let exampleTests =
