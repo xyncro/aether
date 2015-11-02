@@ -1,5 +1,8 @@
-FSharp.Core
-FsCheck
-Fuchu
-Fuchu.FsCheck
-Unquote
+group Test
+  FSharp.Core
+  FsCheck
+  FsCheck.Xunit
+  Fuchu
+  Fuchu.FsCheck
+  Unquote
+  xunit

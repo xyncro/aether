@@ -1,9 +1,16 @@
 source http://nuget.org/api/v2
 
 nuget Fake
-nuget FSharp.Core >= 3.1.2.5
-nuget FsCheck
-nuget Fuchu
-nuget Fuchu.FsCheck
 nuget Nuget.CommandLine
-nuget Unquote
+
+group Test
+  source http://nuget.org/api/v2
+
+  nuget FSharp.Core 3.1.2.5 redirects: on
+  nuget FsCheck
+  nuget FsCheck.Xunit
+  nuget Fuchu
+  nuget Fuchu.FsCheck
+  nuget Unquote
+  nuget xunit
+  nuget xunit.runner.console
