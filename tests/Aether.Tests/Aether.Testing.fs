@@ -103,21 +103,43 @@ module Properties =
 
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module Iso =
-    let roundtripEquality iso v =
+    let roundtripEquality iso outer =
       "Roundtrip Equality" @| lazy
-        test <@ fst iso v |> snd iso = v @>
+        test <@ fst iso outer |> snd iso = outer @>
 
-    let inline followsIsoLaws iso v =
-      Lens.followsLensLaws (id_ <--> iso) .&.
-      roundtripEquality iso v
+    let converseRoundtripEquality iso inner =
+      "Converse Roundtrip Equality" @| lazy
+        test <@ snd iso inner |> fst iso = inner @>
+
+    let inline followsWeakIsoLaws iso outer inner dummy =
+      let isoAsLens = id_ <--> iso
+      Lens.getSetIdentity isoAsLens outer .&.
+      Lens.setSetOrderDependence isoAsLens outer inner dummy .&.
+      roundtripEquality iso outer
+
+    let inline followsIsoLaws iso outer inner dummy f =
+      Lens.followsLensLaws (id_ <--> iso) outer inner dummy f .&.
+      roundtripEquality iso outer .&.
+      converseRoundtripEquality iso inner
 
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module PIso =
-    let roundtripEquality iso v =
-      fst iso v |> Option.isSome ==>
+    let roundtripEquality isoP outer =
+      fst isoP outer |> Option.isSome ==>
         "Roundtrip Equality" @| lazy
-          test <@ fst iso v |> Option.map (snd iso) = Some v @>
+          test <@ fst isoP outer |> Option.map (snd isoP) = Some outer @>
 
-    let inline followsPIsoLaws iso v =
-      Prism.followsPrismLaws (id_ <-?> iso) .&.
-      roundtripEquality iso v
+    let converseRoundtripEquality isoP inner =
+        "Converse Roundtrip Equality" @| lazy
+          test <@ snd isoP inner |> fst isoP = Some inner @>
+
+    let inline followsWeakPIsoLaws isoP outer inner dummy =
+      let isoPAsLens = id_ <-?> isoP
+      Prism.getSetIdentity isoPAsLens outer .&.
+      Prism.setSetOrderDependence isoPAsLens outer inner dummy .&.
+      roundtripEquality isoP outer
+
+    let inline followsPIsoLaws isoP outer inner dummy f =
+      Prism.followsPrismLaws (id_ <-?> isoP) outer inner dummy f .&.
+      roundtripEquality isoP outer .&.
+      converseRoundtripEquality isoP inner
