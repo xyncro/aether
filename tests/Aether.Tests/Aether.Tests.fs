@@ -3,7 +3,7 @@
 open System
 open Aether
 open Aether.Operators
-open Aether.Testing
+open Aether.Testing.Properties
 open FsCheck
 open FsCheck.Xunit
 open global.Xunit
@@ -22,45 +22,45 @@ module Data =
 module ``Built-in Lenses`` =
   [<Property>]
   let ``id_ follows the Lens Laws`` (outer : obj, inner, dummy, f) =
-    Lens.followsLensLawsProperty id_ outer inner dummy f
+    Lens.followsLensLaws id_ outer inner dummy f
 
   [<Property>]
   let ``fst_ follows the Lens Laws`` (outer : obj * obj, inner, dummy, f) =
-    Lens.followsLensLawsProperty fst_ outer inner dummy f
+    Lens.followsLensLaws fst_ outer inner dummy f
 
   [<Property>]
   let ``snd_ follows the Lens Laws`` (outer : obj * obj, inner, dummy, f) =
-    Lens.followsLensLawsProperty snd_ outer inner dummy f
+    Lens.followsLensLaws snd_ outer inner dummy f
 
 module ``Built-in Prisms`` =
   [<Property>]
   let ``choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>, inner, dummy, f) =
-    Prism.followsPrismLawsProperty choice1Of2_ outer inner dummy f
+    Prism.followsPrismLaws choice1Of2_ outer inner dummy f
 
   [<Property>]
   let ``choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>, inner, dummy, f) =
-    Prism.followsPrismLawsProperty choice2Of2_ outer inner dummy f
+    Prism.followsPrismLaws choice2Of2_ outer inner dummy f
 
   [<Property>]
   let ``head_ follows the Prism Laws`` (outer : obj list, inner, dummy, f) =
-    Prism.followsPrismLawsProperty head_ outer inner dummy f
+    Prism.followsPrismLaws head_ outer inner dummy f
 
   [<Property>]
   let ``tail_ follows the Prism Laws`` (outer : obj list, inner, dummy, f) =
-    Prism.followsPrismLawsProperty tail_ outer inner dummy f
+    Prism.followsPrismLaws tail_ outer inner dummy f
 
   [<Property>]
   let ``pos_ follows the Prism Laws`` (idx : NonNegativeInt, outer : obj list, inner, dummy, f) =
-    Prism.followsPrismLawsProperty (pos_ idx.Get) outer inner dummy f
+    Prism.followsPrismLaws (pos_ idx.Get) outer inner dummy f
 
   [<Property>]
   let ``key_ follows the Prism Laws`` (key, outer : Map<string,obj>, inner, dummy, f) =
-    Prism.followsPrismLawsProperty (key_ key) outer inner dummy f
+    Prism.followsPrismLaws (key_ key) outer inner dummy f
 
 module ``Built-in Isomorphisms`` =
   [<Property>]
   let ``Map(toList/ofList) follows the Isomorphism Laws`` v =
-    Iso.followsIsoLawsProperty (Map.toList,Map.ofList) v
+    Iso.followsIsoLaws (Map.toList,Map.ofList) v
 
 type MapExample =
   { MyMap : Map<string,string> }
