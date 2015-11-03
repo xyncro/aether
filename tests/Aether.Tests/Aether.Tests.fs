@@ -27,40 +27,40 @@ module Data =
 
 module ``Built-in Lenses`` =
   [<Property>]
-  let ``id_ follows the Lens Laws`` (outer : obj, inner, dummy, f) =
+  let ``id_ follows the Lens Laws`` (outer : obj) inner dummy f =
     Lens.followsLensLaws id_ outer inner dummy f
 
   [<Property>]
-  let ``fst_ follows the Lens Laws`` (outer : obj * obj, inner, dummy, f) =
+  let ``fst_ follows the Lens Laws`` (outer : obj * obj) inner dummy f =
     Lens.followsLensLaws fst_ outer inner dummy f
 
   [<Property>]
-  let ``snd_ follows the Lens Laws`` (outer : obj * obj, inner, dummy, f) =
+  let ``snd_ follows the Lens Laws`` (outer : obj * obj) inner dummy f =
     Lens.followsLensLaws snd_ outer inner dummy f
 
 module ``Built-in Prisms`` =
   [<Property>]
-  let ``choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>, inner, dummy, f) =
+  let ``choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
     Prism.followsPrismLaws choice1Of2_ outer inner dummy f
 
   [<Property>]
-  let ``choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>, inner, dummy, f) =
+  let ``choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
     Prism.followsPrismLaws choice2Of2_ outer inner dummy f
 
   [<Property>]
-  let ``head_ follows the Prism Laws`` (outer : obj list, inner, dummy, f) =
+  let ``head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
     Prism.followsPrismLaws head_ outer inner dummy f
 
   [<Property>]
-  let ``tail_ follows the Prism Laws`` (outer : obj list, inner, dummy, f) =
+  let ``tail_ follows the Prism Laws`` (outer : obj list) inner dummy f =
     Prism.followsPrismLaws tail_ outer inner dummy f
 
   [<Property>]
-  let ``pos_ follows the Prism Laws`` (idx : NonNegativeInt, outer : obj list, inner, dummy, f) =
+  let ``pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : obj list) inner dummy f =
     Prism.followsPrismLaws (pos_ idx.Get) outer inner dummy f
 
   [<Property>]
-  let ``key_ follows the Prism Laws`` (key, outer : Map<string,obj>, inner, dummy, f) =
+  let ``key_ follows the Prism Laws`` key (outer : Map<string,obj>) inner dummy f =
     Prism.followsPrismLaws (key_ key) outer inner dummy f
 
 module ``Built-in Isomorphisms`` =
@@ -73,12 +73,12 @@ module ``Built-in Isomorphisms`` =
     Iso.followsIsoLaws (List.toArray,List.ofArray) outer inner dummy f
 
   [<Property>]
-  let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy f =
-    PIso.followsPIsoLaws ((fst choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy f
+  let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =
+    PIso.followsWeakPIsoLaws ((fst choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy
 
   [<Property>]
-  let ``choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy f =
-    PIso.followsPIsoLaws (fst choice1Of2_,Choice1Of2) outer inner dummy f
+  let ``choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy =
+    PIso.followsPIsoLaws (fst choice1Of2_,Choice1Of2) outer inner dummy
 
 type MapExample =
   { MyMap : Map<string,string> }
