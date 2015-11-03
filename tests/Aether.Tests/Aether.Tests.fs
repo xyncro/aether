@@ -19,6 +19,12 @@ module Data =
     ((fun x -> match x with | Choice2Of2 v -> Some v | _ -> None),
       (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
 
+  let chars : Iso<string, char[]>  =
+    (fun x -> x.ToCharArray ()), (fun x -> String (x))
+
+  let rev : Iso<char[], char[]> =
+    Array.rev, Array.rev
+
 module ``Built-in Lenses`` =
   [<Property>]
   let ``id_ follows the Lens Laws`` (outer : obj, inner, dummy, f) =
@@ -59,8 +65,20 @@ module ``Built-in Prisms`` =
 
 module ``Built-in Isomorphisms`` =
   [<Property>]
-  let ``Map(toList/ofList) follows the Isomorphism Laws`` v =
-    Iso.followsIsoLaws (Map.toList,Map.ofList) v
+  let ``Map(toList/ofList) follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
+    Iso.followsWeakIsoLaws (Map.toList,Map.ofList) outer inner dummy
+
+  [<Property>]
+  let ``List(toArry/ofArray) follows the Isomorphism Laws`` (outer : obj list) inner dummy f =
+    Iso.followsIsoLaws (List.toArray,List.ofArray) outer inner dummy f
+
+  [<Property>]
+  let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy f =
+    PIso.followsPIsoLaws ((fst choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy f
+
+  [<Property>]
+  let ``choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy f =
+    PIso.followsPIsoLaws (fst choice1Of2_,Choice1Of2) outer inner dummy f
 
 type MapExample =
   { MyMap : Map<string,string> }
@@ -172,12 +190,6 @@ module ``Basic Prism functions`` =
     Lens.mapPartial choice2Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
 module ``Isomorphism composition`` =
-  let chars : Iso<string, char[]> =
-    (fun x -> x.ToCharArray ()), (fun x -> String (x))
-
-  let rev : Iso<char[], char[]> =
-    Array.rev, Array.rev
-
   module ``over a Lens`` =
     [<Fact>]
     let ``gets value`` () =
