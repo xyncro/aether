@@ -135,11 +135,11 @@ module Properties =
 
     let inline followsWeakPIsoLaws isoP outer inner dummy =
       let isoPAsLens = id_ <-?> isoP
-      Prism.getSetIdentity isoPAsLens outer .&.
       Prism.setSetOrderDependence isoPAsLens outer inner dummy .&.
       roundtripEquality isoP outer
 
-    let inline followsPIsoLaws isoP outer inner dummy f =
-      Prism.followsPrismLaws (id_ <-?> isoP) outer inner dummy f .&.
+    let inline followsPIsoLaws isoP outer inner dummy =
+      let isoPAsLens = id_ <-?> isoP
+      Prism.setSetOrderDependence isoPAsLens outer inner dummy .&.
       roundtripEquality isoP outer .&.
       converseRoundtripEquality isoP inner
