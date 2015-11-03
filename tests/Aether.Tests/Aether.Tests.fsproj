@@ -52,6 +52,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
+    <Compile Include="Aether.Testing.fs" />
     <Compile Include="Aether.Tests.fs" />
     <Content Include="app.config" />
   </ItemGroup>
