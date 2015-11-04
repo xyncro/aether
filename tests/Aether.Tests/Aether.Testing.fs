@@ -1,7 +1,5 @@
 ﻿module Aether.Testing
 
-open Aether
-open Aether.Operators
 open FsCheck
 open Swensen.Unquote
 
@@ -11,6 +9,10 @@ module Properties =
   /// Lens properties
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module Lens =
+    let get (g, _) = fun o -> g o
+    let set (_, s) = fun i o -> s i o
+    let map (g, s) = fun f o -> s (f (g o)) o
+
     let getSetIdentityWith lensGet lensSet outer =
       "Get-Set Identity" @| lazy
         test <@ lensSet (lensGet outer) outer = outer @>
@@ -29,7 +31,7 @@ module Properties =
         test <@ lensSet (lensGet outer |> f) outer = lensMap f outer @>
 
     let inline unwrapLens f lens =
-      f (Lens.get lens) (Lens.set lens)
+      f (get lens) (set lens)
 
     /// The Get-Set Identity requires that modifying an entity through a lens by setting a value
     /// to exactly what it was before then nothing happens.
@@ -45,13 +47,13 @@ module Properties =
     /// a value to `a` and then setting the same value to `b` behaves the same as having modified
     /// the original entity by only setting the value to `b`.
     let inline setSetOrderDependence lens =
-      setSetOrderDependenceWith (Lens.set lens)
+      setSetOrderDependenceWith (set lens)
 
     /// The Get-Set to Map Corresponsence requires that modifying an entity through a lens
     /// by getting a value, applying some function `f` to that value and then setting the value to the result
     /// behaves the same as having mapped that function through the lens.
     let inline getSetMapCorrespondence lens =
-      unwrapLens getSetMapCorrespondenceWith lens (Lens.map lens)
+      unwrapLens getSetMapCorrespondenceWith lens (map lens)
 
     /// Requires that a lens follows the Lens Laws and is well-behaved:
     /// * Get-Set Identity,
@@ -68,6 +70,10 @@ module Properties =
   /// Prism properties
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module Prism =
+    let get (g, _) = fun o -> g o
+    let set (_, s) = fun i o -> s i o
+    let map (g, s) = fun f o -> Option.map f (g o) |> function | Some i -> s i o | _ -> o
+
     let classifyInner innerP =
       Prop.classify (Option.isSome innerP) "has inner"
       >> Prop.classify (Option.isNone innerP) "no inner"
@@ -99,7 +105,7 @@ module Properties =
       |> classifyInnerWith prismGet outer
 
     let inline unwrapPrism f prism =
-      f (Lens.getPartial prism) (Lens.setPartial prism)
+      f (get prism) (set prism)
 
     /// The Get-Set Identity requires that modifying an entity through a prism by setting a value
     /// to exactly what it was before then nothing happens.
@@ -127,7 +133,7 @@ module Properties =
     /// behaves the same as having mapped that function through the prism.
     /// Classifies evaluation by whether the prism resolves to `Some` on the tested entity.
     let inline getSetMapCorrespondence prism =
-      unwrapPrism getSetMapCorrespondenceWith prism (Lens.mapPartial prism)
+      unwrapPrism getSetMapCorrespondenceWith prism (map prism)
 
     /// Requires that a prism follows the Prism Laws and is well-behaved:
     /// * Get-Set Identity,
@@ -145,6 +151,8 @@ module Properties =
   /// Isomorphism properties
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module Iso =
+    let asLens (f, t) = f, (fun c _ -> t c)
+
     /// Requires that mapping a value through an isomorphism and then mapping it
     /// back returns a value equivalent to the original.
     let roundtripEquality iso outer =
@@ -160,7 +168,7 @@ module Properties =
     /// Requires that an isomorphism demonstrates certain properties to ensure
     /// unidirectional isomorphic operations are sane.
     let inline followsWeakIsoLaws iso outer inner dummy =
-      let isoAsLens = id_ <--> iso
+      let isoAsLens = asLens iso
       Lens.getSetIdentity isoAsLens outer .&.
       Lens.setSetOrderDependence isoAsLens outer inner dummy .&.
       roundtripEquality iso outer
@@ -168,13 +176,15 @@ module Properties =
     /// Requires that an isomorphism demonstrates certain properties to ensure
     /// isomorphic operations in either direction are sane.
     let inline followsIsoLaws iso outer inner dummy f =
-      Lens.followsLensLaws (id_ <--> iso) outer inner dummy f .&.
+      Lens.followsLensLaws (asLens iso) outer inner dummy f .&.
       roundtripEquality iso outer .&.
       converseRoundtripEquality iso inner
 
   /// Partial Isomorphism properties
   [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
   module PIso =
+    let asPrism (f, t) = f, (fun c _ -> t c)
+
     /// Requires that, if mapping a value through a partial isomorphism results in a value,
     /// mapping that value back returns a value equivalent to the original.
     let roundtripEquality isoP outer =
@@ -191,14 +201,12 @@ module Properties =
     /// Requires that a partial isomorphism demonstrates minimal properties to ensure
     /// sane operations in one direction.
     let inline followsWeakPIsoLaws isoP outer inner dummy =
-      let isoPAsLens = id_ <-?> isoP
-      Prism.setSetOrderDependence isoPAsLens outer inner dummy .&.
+      Prism.setSetOrderDependence (asPrism isoP) outer inner dummy .&.
       roundtripEquality isoP outer
 
     /// Requires that a partial isomorphism demonstrates minimal properties to ensure
     /// sane operations in both directions.
     let inline followsPIsoLaws isoP outer inner dummy =
-      let isoPAsLens = id_ <-?> isoP
-      Prism.setSetOrderDependence isoPAsLens outer inner dummy .&.
+      Prism.setSetOrderDependence (asPrism isoP) outer inner dummy .&.
       roundtripEquality isoP outer .&.
       converseRoundtripEquality isoP inner
