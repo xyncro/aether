@@ -110,39 +110,39 @@ module Compose =
 
 (* Lenses
 
-   Various lenses implemented for common types such as tuples,
-   lists and maps, along with an id lens (which is useful for composing
-   a lens which has not specific "lensing" elements but is implicitly a chain
-   of one or more isomorphisms. Having an id lens enables the root composition. *)
+   Various lenses for common types such as tuples,
+   lists, and maps; along with an id_ lens (which is useful for composing
+   lenses of scalars, chain of one or more isomorphisms, and enabling
+   the root composition. *)
 
 /// Identity lens returning the original item regardless of modifiction
 let id_ : Lens<'a,'a> =
     (fun x -> x), (fun x _ -> x) 
 
-/// First item of a tuple giving a total lens
+/// First item of a tuple given a total lens
 let fst_ : Lens<('a * 'b),'a> =
     fst, (fun a t -> a, snd t)
         
-/// Second item of a tuple giving a total lens
+/// Second item of a tuple given a total lens
 let snd_ : Lens<('a * 'b),'b> =
     snd, (fun b t -> fst t, b)
 
-/// Head of a list giving a partial lens
+/// Head of a list given a partial lens
 let head_ : PLens<'v list, 'v> =
     (function | h :: _ -> Some h | _ -> None),
     (fun v -> function | _ :: t -> v :: t | l -> l)
 
-/// Position of a list giving a partial lens
+/// Position of a list given a partial lens
 let pos_ (i: int) : PLens<'v list, 'v> =
     (function | l when List.length l > i -> Some (List.nth l i) | _ -> None), 
     (fun v l -> List.mapi (fun i' x -> if i = i' then v else x) l)
 
-/// Tail of a list giving a partial lens
+/// Tail of a list given a partial lens
 let tail_ : PLens<'v list, 'v list> =
     (function | _ :: t -> Some t | _ -> None),
     (fun t -> function | h :: _ -> h :: t | [] -> t)
 
-/// Key of a map giving a partial lens
+/// Key of a map given a partial lens
 let key_ (k: 'k) : PLens<Map<'k,'v>,'v> =
     Map.tryFind k, Map.add k
 
