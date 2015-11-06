@@ -57,12 +57,20 @@ module ``Built-in Prisms`` =
 
 module ``Built-in Isomorphisms`` =
     [<Property>]
-    let ``Map(toList/ofList) follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
-        Iso.followsWeakIsoLaws (Map.toList,Map.ofList) outer inner dummy
+    let ``Map.list_ follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
+        Iso.followsWeakIsoLaws Map.list_ outer inner dummy
 
     [<Property>]
-    let ``List(toArry/ofArray) follows the Isomorphism Laws`` (outer : obj list) inner dummy f =
-        Iso.followsIsoLaws (List.toArray,List.ofArray) outer inner dummy f
+    let ``Map.array_ follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
+        Iso.followsWeakIsoLaws Map.array_ outer inner dummy
+
+    [<Property>]
+    let ``Array.list_ follows the Isomorphism Laws`` (outer : obj []) inner dummy f =
+        Iso.followsIsoLaws Array.list_ outer inner dummy f
+
+    [<Property>]
+    let ``List.array_ follows the Isomorphism Laws`` (outer : obj list) inner dummy f =
+        Iso.followsIsoLaws List.array_ outer inner dummy f
 
     [<Property>]
     let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =

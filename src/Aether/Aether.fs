@@ -134,6 +134,11 @@ module Optics =
         snd, (fun b t -> fst t, b)
 
     [<RequireQualifiedAccess>]
+    module Array =
+        let list_ : Iso<'v[], 'v list> =
+            Array.toList, Array.ofList
+
+    [<RequireQualifiedAccess>]
     module List =
         /// Prism to the head of a list
         let head_ : Prism<'v list, 'v> =
@@ -150,11 +155,23 @@ module Optics =
             (function | _ :: t -> Some t | _ -> None),
             (fun t -> function | h :: _ -> h :: t | [] -> [])
 
+        /// Isomorphism to an array
+        let array_ : Iso<'v list, 'v[]> =
+            List.toArray, List.ofArray
+
     [<RequireQualifiedAccess>]
     module Map =
         /// Prism to a value associated with a key in a map
         let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
             Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
+
+        /// Weak Isomorphism to an array of key-value pairs
+        let array_ : Iso<Map<'k,'v>, ('k * 'v)[]> =
+            Map.toArray, Map.ofArray
+
+        /// Weak Isomorphism to a list of key-value pairs
+        let list_ : Iso<Map<'k,'v>, ('k * 'v) list> =
+            Map.toList, Map.ofList
 
     [<RequireQualifiedAccess>]
     module Choice =
