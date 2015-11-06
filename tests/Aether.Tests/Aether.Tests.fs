@@ -11,14 +11,6 @@ open Swensen.Unquote
 
 [<AutoOpen>]
 module Data =
-    let choice1Of2_ : PLens<Choice<_,_>, _> =
-        ((fun x -> match x with | Choice1Of2 v -> Some v | _ -> None),
-            (fun v x -> match x with | Choice1Of2 _ -> Choice1Of2 v | _ -> x))
-
-    let choice2Of2_ : PLens<Choice<_,_>, _> =
-        ((fun x -> match x with | Choice2Of2 v -> Some v | _ -> None),
-            (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
-
     let chars : Iso<string, char[]> =
         (fun x -> x.ToCharArray ()), (fun x -> String (x))
 
@@ -41,27 +33,27 @@ module ``Built-in Lenses`` =
 module ``Built-in Prisms`` =
     [<Property>]
     let ``choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
-        Prism.followsPrismLaws choice1Of2_ outer inner dummy f
+        Prism.followsPrismLaws Choice.choice1Of2_ outer inner dummy f
 
     [<Property>]
     let ``choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
-        Prism.followsPrismLaws choice2Of2_ outer inner dummy f
+        Prism.followsPrismLaws Choice.choice2Of2_ outer inner dummy f
 
     [<Property>]
     let ``head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws head_ outer inner dummy f
+        Prism.followsPrismLaws List.head_ outer inner dummy f
 
     [<Property>]
     let ``tail_ follows the Prism Laws`` (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws tail_ outer inner dummy f
+        Prism.followsPrismLaws List.tail_ outer inner dummy f
 
     [<Property>]
     let ``pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws (pos_ idx.Get) outer inner dummy f
+        Prism.followsPrismLaws (List.pos_ idx.Get) outer inner dummy f
 
     [<Property>]
     let ``key_ follows the Prism Laws`` key (outer : Map<string,obj>) inner dummy f =
-        Prism.followsPrismLaws (key_ key) outer inner dummy f
+        Prism.followsPrismLaws (Map.key_ key) outer inner dummy f
 
 module ``Built-in Isomorphisms`` =
     [<Property>]
@@ -74,11 +66,11 @@ module ``Built-in Isomorphisms`` =
 
     [<Property>]
     let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =
-        PIso.followsWeakPIsoLaws ((fst choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy
+        PIso.followsWeakPIsoLaws ((fst Choice.choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy
 
     [<Property>]
     let ``choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy =
-        PIso.followsPIsoLaws (fst choice1Of2_,Choice1Of2) outer inner dummy
+        PIso.followsPIsoLaws (fst Choice.choice1Of2_,Choice1Of2) outer inner dummy
 
 type MapExample =
     { MyMap : Map<string,string> }
@@ -98,22 +90,22 @@ module ``Examplar Usage Tests`` =
     [<Fact>]
     let ``Updating a value not contained in a Map using a Prism`` () =
         let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
-        let newValue = Lens.setPartial (MapExample.myMap_ >-?> key_ "TestKey2") "OtherValue" example
+        let newValue = Prism.set (MapExample.myMap_ >-?> Map.key_ "TestKey2") "OtherValue" example
         test <@ newValue.MyMap.TryFind "TestKey2" = None @>
 
     [<Fact>]
     let ``Updating a value contained in a Map using a Prism`` () =
         let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
-        let newValue = Lens.setPartial (MapExample.myMap_ >-?> key_ "TestKey") "OtherValue" example
+        let newValue = Prism.set (MapExample.myMap_ >-?> Map.key_ "TestKey") "OtherValue" example
         test <@ newValue.MyMap.["TestKey"] = "OtherValue" @>
 
     [<Fact>]
     let ``Trying to retreive a value not contained in a Map with a default using a Prism`` () =
-        test <@ Lens.getPartialOrElse (key_ "TestKey") "Default" Map.empty = "Default" @>
+        test <@ Prism.getOrElse (Map.key_ "TestKey") "Default" Map.empty = "Default" @>
 
     [<Fact>]
     let ``Trying to retrieve a value contained in a Map using a Prism`` () =
-        test <@ Lens.getPartialOrElse (key_ "TestKey") "Default" (Map.ofList ["TestKey","Hit"]) = "Hit" @>
+        test <@ Prism.getOrElse (Map.key_ "TestKey") "Default" (Map.ofList ["TestKey","Hit"]) = "Hit" @>
 
     [<Fact>]
     let ``Prepending an element onto a List using a Lens`` () =
@@ -125,23 +117,23 @@ module ``Examplar Usage Tests`` =
 
     [<Fact>]
     let ``Setting the head on an empty List using a Prism`` () =
-        test <@ Lens.setPartial head_ "Bad" [] = [] @>
+        test <@ Prism.set List.head_ "Bad" [] = [] @>
 
     [<Fact>]
     let ``Setting the head on a non-empty List using a Prism`` () =
-        test <@ Lens.setPartial head_ "Good" ["Bad"] = ["Good"] @>
+        test <@ Prism.set List.head_ "Good" ["Bad"] = ["Good"] @>
 
     [<Fact>]
     let ``Setting the tail on an empty List using a Prism`` () =
-        test <@ Lens.setPartial tail_ ["Bad"] [] = [] @>
+        test <@ Prism.set List.tail_ ["Bad"] [] = [] @>
 
     [<Fact>]
     let ``Setting the tail on a non-empty List using a Prism`` () =
-        test <@ Lens.setPartial tail_ ["Tail"] ["Head"; "Bad"; "Value"] = ["Head"; "Tail"] @>
+        test <@ Prism.set List.tail_ ["Tail"] ["Head"; "Bad"; "Value"] = ["Head"; "Tail"] @>
 
     [<Fact>]
     let ``Setting the tail on a single-element List using a Prism`` () =
-        test <@ Lens.setPartial tail_ ["Long"; "Tail"] ["Head"] = ["Head"; "Long"; "Tail"] @>
+        test <@ Prism.set List.tail_ ["Long"; "Tail"] ["Head"] = ["Head"; "Long"; "Tail"] @>
 
 module ``Basic Lens functions`` =
     [<Fact>]
@@ -158,36 +150,36 @@ module ``Basic Lens functions`` =
 
 module ``Basic Prism functions`` =
     [<Fact>]
-    let ``Lens.getPartial returns correct values for existing values`` () =
-        Lens.getPartial choice1Of2_ (Choice1Of2 "Good") =! Some "Good"
+    let ``Prism.get returns correct values for existing values`` () =
+        Prism.get Choice.choice1Of2_ (Choice1Of2 "Good") =! Some "Good"
 
     [<Fact>]
-    let ``Lens.getPartial returns correct value for missing values`` () =
-        Lens.getPartial choice2Of2_ (Choice1Of2 "Bad") =! None
+    let ``Prism.get returns correct value for missing values`` () =
+        Prism.get Choice.choice2Of2_ (Choice1Of2 "Bad") =! None
 
     [<Fact>]
-    let ``Lens.getPartialOrElse returns correct value for existing values`` () =
-        Lens.getPartialOrElse choice1Of2_ "Bad" (Choice1Of2 "Good") =! "Good"
+    let ``Prism.getOrElse returns correct value for existing values`` () =
+        Prism.getOrElse Choice.choice1Of2_ "Bad" (Choice1Of2 "Good") =! "Good"
 
     [<Fact>]
-    let ``Lens.getPartialOrElse returns correct value for missing values`` () =
-        Lens.getPartialOrElse choice2Of2_ "Good" (Choice1Of2 "Bad") =! "Good"
+    let ``Prism.getOrElse returns correct value for missing values`` () =
+        Prism.getOrElse Choice.choice2Of2_ "Good" (Choice1Of2 "Bad") =! "Good"
 
     [<Fact>]
-    let ``Lens.setPartial returns correct values for existing values`` () =
-        Lens.setPartial choice1Of2_ "Good" (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+    let ``Prism.set returns correct values for existing values`` () =
+        Prism.set Choice.choice1Of2_ "Good" (Choice1Of2 "Bad") =! Choice1Of2 "Good"
 
     [<Fact>]
-    let ``Lens.setPartial returns correct value for missing values`` () =
-        Lens.setPartial choice2Of2_ "Bad" (Choice1Of2 "Good") =! Choice1Of2 "Good"
+    let ``Prism.set returns correct value for missing values`` () =
+        Prism.set Choice.choice2Of2_ "Bad" (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
     [<Fact>]
-    let ``Lens.mapPartial modifies values correctly for existing values`` () =
-        Lens.mapPartial choice1Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "GoodGood"
+    let ``Prism.map modifies values correctly for existing values`` () =
+        Prism.map Choice.choice1Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "GoodGood"
 
     [<Fact>]
-    let ``Lens.mapPartial modifies values correctly for missing values`` () =
-        Lens.mapPartial choice2Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "Good"
+    let ``Prism.map modifies values correctly for missing values`` () =
+        Prism.map Choice.choice2Of2_ (fun x -> x + x) (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
 module ``Isomorphism composition`` =
     module ``over a Lens`` =
@@ -210,32 +202,32 @@ module ``Isomorphism composition`` =
     module ``over a Prism`` =
         [<Fact>]
         let ``gets value when inner exists`` () =
-            Lens.getPartial (choice1Of2_ <?-> chars) (Choice1Of2 "Good") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+            Prism.get (Choice.choice1Of2_ <?-> chars) (Choice1Of2 "Good") =! Some [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``gets nothing when inner does not exist`` () =
-            Lens.getPartial (choice2Of2_ <?-> chars) (Choice1Of2 "Bad") =! None
+            Prism.get (Choice.choice2Of2_ <?-> chars) (Choice1Of2 "Bad") =! None
 
         [<Fact>]
         let ``sets value when inner exists`` () =
-            Lens.setPartial (choice1Of2_ <?-> chars) [| 'G'; 'o'; 'o'; 'd' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice1Of2_ <?-> chars) [| 'G'; 'o'; 'o'; 'd' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``sets nothing when inner does not exist`` () =
-            Lens.setPartial (choice2Of2_ <?-> chars) [| 'B'; 'a'; 'd' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice2Of2_ <?-> chars) [| 'B'; 'a'; 'd' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``gets value when inner exists over multiple isomorphisms`` () =
-            Lens.getPartial (choice1Of2_ <?-> chars <?-> rev) (Choice1Of2 "dooG") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+            Prism.get (Choice.choice1Of2_ <?-> chars <?-> rev) (Choice1Of2 "dooG") =! Some [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``gets nothing when inner does not exist over multiple isomorphisms`` () =
-            Lens.getPartial (choice2Of2_ <?-> chars <?-> rev) (Choice1Of2 "daB") =! None
+            Prism.get (Choice.choice2Of2_ <?-> chars <?-> rev) (Choice1Of2 "daB") =! None
 
         [<Fact>]
         let ``sets value when inner exists over multiple isomorphisms`` () =
-            Lens.setPartial (choice1Of2_ <?-> chars <?-> rev) [| 'd'; 'o'; 'o'; 'G' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice1Of2_ <?-> chars <?-> rev) [| 'd'; 'o'; 'o'; 'G' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``sets nothing when inner does not exist over multiple isomorphisms`` () =
-            Lens.setPartial (choice2Of2_ <?-> chars <?-> rev) [| 'd'; 'a'; 'B' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice2Of2_ <?-> chars <?-> rev) [| 'd'; 'a'; 'B' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
