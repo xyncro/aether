@@ -24,7 +24,7 @@ Target "Build" (fun _ ->
                   "Configuration", environVarOrDefault "Build.Configuration" "Release" ]
             Targets =
                 [ "Build" ]
-            Verbosity = Some Quiet }) "./Aether.sln")
+            Verbosity = Some Quiet }) "Aether.sln")
 
 // Publish
 
