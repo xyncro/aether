@@ -1,9 +1,13 @@
 source http://nuget.org/api/v2
 
-nuget Fake
-nuget Nuget.CommandLine
+group Build
+
+  source http://nuget.org/api/v2
+
+  nuget Fake
 
 group Test
+
   framework: >= net45
   source http://nuget.org/api/v2
 

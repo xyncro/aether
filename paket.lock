@@ -1,8 +1,10 @@
+
+
+GROUP Build
 NUGET
   remote: http://nuget.org/api/v2
   specs:
-    FAKE (4.7.3)
-    NuGet.CommandLine (2.8.6)
+    FAKE (4.8.0)
 
 GROUP Test
 FRAMEWORK: >= NET45

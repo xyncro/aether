@@ -6,7 +6,6 @@ open Fake
 // Dirs
 
 let tempDir = "./temp"
-let srcDir = tempDir + "/src"
 
 // Clean
 
@@ -21,36 +20,34 @@ Target "Restore" (fun _ ->
 // Build
 
 Target "Build" (fun _ ->
-    !! "src/**/*.fsproj"
-    |> MSBuildRelease srcDir "Build" 
-    |> Log "Build Source: ")
+    build (fun x ->
+        { x with
+            Properties =
+                [ "Optimize",      environVarOrDefault "Build.Optimize"      "True"
+                  "DebugSymbols",  environVarOrDefault "Build.DebugSymbols"  "True"
+                  "Configuration", environVarOrDefault "Build.Configuration" "Release" ]
+            Targets =
+                [ "Build" ]
+            Verbosity = Some Quiet }) "Aether.sln")
 
 // Publish
 
-Target "Publish" (fun _ ->
-    NuGet (fun p ->
+Target "Pack" (fun _ ->
+    Paket.Pack (fun p ->
         { p with
-              Authors =
-                [ "Andrew Cherry"
-                  "Marcus Griep" ]
-              Project = "Aether"
-              OutputPath = tempDir
-              WorkingDir = srcDir
-              Version = "8.0.0-b1"
-              AccessKey = getBuildParamOrDefault "nuget_key" ""
-              Publish = hasBuildParam "nuget_key"
-              Dependencies = []
-              Files =
-                [ "Aether.dll", Some "lib/net35", None
-                  "Aether.pdb", Some "lib/net35", None
-                  "Aether.xml", Some "lib/net35", None ] })
-              "./nuget/Aether.nuspec")
+            OutputPath = tempDir }))
+
+Target "Push" (fun _ ->
+    Paket.Push (fun p ->
+        { p with
+            WorkingDir = tempDir }))
 
 // Dependencies
 
 "Clean"
     ==> "Restore"
     ==> "Build"
-    ==> "Publish"
+    ==> "Pack"
+    ==> "Push"
 
-RunTargetOrDefault "Publish"
+RunTargetOrDefault "Push"
