@@ -2,16 +2,16 @@
 
 (* Types
 
-   Types defining lenses and isomorphisms (both total
-   and partial as standard pairs. These can be implemented implicitly,
+   Types defining lenses, prisms, and isomorphisms
+   as standard pairs. These can be implemented implicitly,
    so an assembly *providing* lenses without also consuming them
    requires no dependency on Aether, just an implicit structuring. *)
 
-/// Total lens from a -> b
+/// Lens from a -> b
 type Lens<'a,'b> = ('a -> 'b) * ('b -> 'a -> 'a)
 
-/// Partial lens from a -> b
-type PLens<'a,'b> = ('a -> 'b option) * ('b -> 'a -> 'a)
+/// Prism from a -> b
+type Prism<'a,'b> = ('a -> 'b option) * ('b -> 'a -> 'a)
 
 // Isomorphisms
 
@@ -21,203 +21,233 @@ type Iso<'a,'b> = ('a -> 'b) * ('b -> 'a)
 /// Partial isomorphism of a <> b
 type PIso<'a,'b> = ('a -> 'b option) * ('b -> 'a)
 
-(* Functions
-
-   Functions for using lenses to get, set and modify values within a target
-   instance. *)
-
+/// Functions for using lenses to get, set, and modify values on
+/// product-types, such as tuples and records.
 [<RequireQualifiedAccess>]
 module Lens =
 
-    /// Get a value using a total lens
-    let get ((g, _): Lens<'a,'b>) = 
+    /// Get a value using a lens
+    let get ((g, _): Lens<'a,'b>) =
         fun a -> g a
 
-    /// Get a value option using a partial lens
-    let getPartial ((g, _): PLens<'a,'b>) = 
-        fun a -> g a
-
-    /// Get a value or a default using a partial lens
-    let getPartialOrElse ((g, _): PLens<'a,'b>) = 
-        fun b a -> g a |> function | Some b -> b | _ -> b
-
-    /// Set a value using a total lens
+    /// Set a value using a lens
     let set ((_, s): Lens<'a,'b>) =
         fun b a -> s b a
 
-    /// Set a value using a partial lens
-    let setPartial ((_, s): PLens<'a,'b>) =
-        fun b a -> s b a
-
-    /// Modify a value using a total lens
-    let map ((g, s): Lens<'a,'b>) = 
+    /// Modify a value using a lens
+    let map ((g, s): Lens<'a,'b>) =
         fun f a -> s (f (g a)) a
 
+    /// Converts an Isomorphism into a Lens
+    let ofIso ((f, t) : Iso<'a,'b>) : Lens<'a,'b> =
+        f, (fun b _ -> t b)
+
+/// Functions for using prisms to get, set, and modify values on
+/// sum-types, such as discriminated unions.
+[<RequireQualifiedAccess>]
+module Prism =
+
+    /// Get a value option using a prism
+    let get ((g, _): Prism<'a,'b>) =
+        fun a -> g a
+
+    /// Get a value or a default using a partial lens
+    let getOrElse ((g, _): Prism<'a,'b>) =
+        fun b a -> g a |> function | Some b -> b | _ -> b
+
+    /// Set a value using a partial lens
+    let set ((_, s): Prism<'a,'b>) =
+        fun b a -> s b a
+
     /// Modify a value using a partial lens
-    let mapPartial ((g, s): PLens<'a,'b>) = 
+    let map ((g, s): Prism<'a,'b>) =
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
-(* Compositions
+    /// Converts a Partial Isomorphism into a Prism
+    let ofPIso ((f, t) : PIso<'a,'b>) : Prism<'a,'b> =
+        f, (fun b _ -> t b)
 
-   Functions for composing lenses and isomorphisms, each of which
-   returns a new lens of a total or partial type based on the lenses
-   or isomorphisms composed. It is more common (and significantly less
-   verbose) to use the infix operator forms of these compositions (though note
-   that Aether.Operators is not open by default and should be opened explicitly). *)
-
+/// Functions for composing lenses, prisms, and isomorphisms, each of which
+/// returns a new lens or prism based on the lenses, prisms,
+/// or isomorphisms composed.
+///
+/// Open `Aether.Operators` to use the infix operator forms of these compositions,
+/// which is significantly less verbose.
 [<RequireQualifiedAccess>]
 module Compose =
 
-    /// Compose a total lens and a total lens, giving a total lens
-    let totalLensTotalLens ((g1, s1): Lens<'a,'b>) ((g2, s2): Lens<'b,'c>) : Lens<'a,'c> =
+    /// Compose a lens with a lens, giving a lens
+    let lensWithLens ((g1, s1): Lens<'a,'b>) ((g2, s2): Lens<'b,'c>) : Lens<'a,'c> =
         (fun a -> g2 (g1 a)),
         (fun c a -> s1 (s2 c (g1 a)) a)
 
-    /// Compose a total lens and a partial lens, giving a partial lens
-    let totalLensPartialLens ((g1, s1): Lens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
+    /// Compose a lens with a prism, giving a prism
+    let lensWithPrism ((g1, s1): Lens<'a,'b>) ((g2, s2): Prism<'b,'c>) : Prism<'a,'c> =
         (fun a -> g2 (g1 a)),
         (fun c a -> s1 (s2 c (g1 a)) a)
 
-    /// Compose a partial lens and a total lens, giving a partial lens
-    let partialLensTotalLens ((g1, s1): PLens<'a,'b>) ((g2, s2): Lens<'b,'c>) : PLens<'a,'c> =
+    /// Compose a prism and a lens, giving a prism
+    let prismWithLens ((g1, s1): Prism<'a,'b>) ((g2, s2): Lens<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.map g2 (g1 a)),
         (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
 
-    /// Compose two partial lenses, giving a partial lens
-    let partialLensPartialLens ((g1, s1): PLens<'a,'b>) ((g2, s2): PLens<'b,'c>) : PLens<'a,'c> =
+    /// Compose a prism with a prism, giving a prism
+    let prismWithPrism ((g1, s1): Prism<'a,'b>) ((g2, s2): Prism<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.bind g2 (g1 a)),
         (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
 
-    /// Compose a total lens with a total isomorphism, giving a total lens
-    let totalLensTotalIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Iso<'b,'c>) : Lens<'a,'c> =
+    /// Compose a lens with an isomorphism, giving a lens
+    let lensWithIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Iso<'b,'c>) : Lens<'a,'c> =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
-    /// Compose a total lens with a partial isomorphism, giving a partial lens
-    let totalLensPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
+    /// Compose a lens with a partial isomorphism, giving a prism
+    let lensWithPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PIso<'b,'c>) : Prism<'a,'c> =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
-    /// Compose a partial lens with a total isomorphism, giving a partial lens
-    let partialLensTotalIsomorphism ((g, s): PLens<'a,'b>) ((f, t): Iso<'b, 'c>) : PLens<'a,'c> =
+    /// Compose a prism with an isomorphism, giving a prism
+    let prismWithIsomorphism ((g, s): Prism<'a,'b>) ((f, t): Iso<'b, 'c>) : Prism<'a,'c> =
         (fun a -> Option.map f (g a)),
         (fun c a -> s (t c) a)
 
-    /// Compose a partial lens with a partial isomorphism, giving a partial lens
-    let partialLensPartialIsomorphism ((g, s): PLens<'a,'b>) ((f, t): PIso<'b,'c>) : PLens<'a,'c> =
+    /// Compose a lens with a partial isomorphism, giving a prism
+    let prismWithPartialIsomorphism ((g, s): Prism<'a,'b>) ((f, t): PIso<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.bind f (g a)),
         (fun c a -> s (t c) a)
 
-(* Lenses
+/// Various optics implemented for common types such as tuples,
+/// lists and maps, along with an id_ lens.
+[<AutoOpen>]
+module Optics =
+    /// Identity lens returning the original item regardless of modification.
+    /// Useful for composing a lens out of a chain of one or more isomorphisms.
+    let id_ : Lens<'a,'a> =
+        (fun x -> x), (fun x _ -> x)
 
-   Various lenses implemented for common types such as tuples,
-   lists and maps, along with an id lens (which is useful for composing
-   a lens which has not specific "lensing" elements but is implicitly a chain
-   of one or more isomorphisms. Having an id lens enables the root composition. *)
+    /// Lens to the First item of a tuple
+    let fst_ : Lens<('a * 'b),'a> =
+        fst, (fun a t -> a, snd t)
 
-/// Identity lens returning the original item regardless of modifiction
-let id_ : Lens<'a,'a> =
-    (fun x -> x), (fun x _ -> x) 
+    /// Lens to the second item of a tuple
+    let snd_ : Lens<('a * 'b),'b> =
+        snd, (fun b t -> fst t, b)
 
-/// First item of a tuple giving a total lens
-let fst_ : Lens<('a * 'b),'a> =
-    fst, (fun a t -> a, snd t)
-        
-/// Second item of a tuple giving a total lens
-let snd_ : Lens<('a * 'b),'b> =
-    snd, (fun b t -> fst t, b)
+    [<RequireQualifiedAccess>]
+    module Array =
+        let list_ : Iso<'v[], 'v list> =
+            Array.toList, Array.ofList
 
-/// Head of a list giving a partial lens
-let head_ : PLens<'v list, 'v> =
-    (function | h :: _ -> Some h | _ -> None),
-    (fun v -> function | _ :: t -> v :: t | l -> l)
+    [<RequireQualifiedAccess>]
+    module List =
+        /// Prism to the head of a list
+        let head_ : Prism<'v list, 'v> =
+            (function | h :: _ -> Some h | _ -> None),
+            (fun v -> function | _ :: t -> v :: t | l -> l)
 
-/// Position of a list giving a partial lens
-let pos_ (i: int) : PLens<'v list, 'v> =
-    (function | l when List.length l > i -> Some (List.nth l i) | _ -> None), 
-    (fun v l -> List.mapi (fun i' x -> if i = i' then v else x) l)
+        /// Prism to an indexed element in a list
+        let pos_ (i: int) : Prism<'v list, 'v> =
+            (function | l when List.length l > i -> Some (List.nth l i) | _ -> None),
+            (fun v l -> List.mapi (fun i' x -> if i = i' then v else x) l)
 
-/// Tail of a list giving a partial lens
-let tail_ : PLens<'v list, 'v list> =
-    (function | _ :: t -> Some t | _ -> None),
-    (fun t -> function | h :: _ -> h :: t | [] -> t)
+        /// Prism to the tail of a list
+        let tail_ : Prism<'v list, 'v list> =
+            (function | _ :: t -> Some t | _ -> None),
+            (fun t -> function | h :: _ -> h :: t | [] -> [])
 
-/// Key of a map giving a partial lens
-let key_ (k: 'k) : PLens<Map<'k,'v>,'v> =
-    Map.tryFind k, Map.add k
+        /// Isomorphism to an array
+        let array_ : Iso<'v list, 'v[]> =
+            List.toArray, List.ofArray
 
-(* Operators
+    [<RequireQualifiedAccess>]
+    module Map =
+        /// Prism to a value associated with a key in a map
+        let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
+            Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
 
-   Operators are an optional feature of Aether and so must be explicitly opened
-   when needed. *)
+        /// Weak Isomorphism to an array of key-value pairs
+        let array_ : Iso<Map<'k,'v>, ('k * 'v)[]> =
+            Map.toArray, Map.ofArray
 
+        /// Weak Isomorphism to a list of key-value pairs
+        let list_ : Iso<Map<'k,'v>, ('k * 'v) list> =
+            Map.toList, Map.ofList
+
+    [<RequireQualifiedAccess>]
+    module Choice =
+        /// Prism to Choice1Of2
+        let choice1Of2_ : Prism<Choice<_,_>, _> =
+            ((fun x -> match x with | Choice1Of2 v -> Some v | _ -> None),
+                (fun v x -> match x with | Choice1Of2 _ -> Choice1Of2 v | _ -> x))
+
+        /// Prism to Choice2Of2
+        let choice2Of2_ : Prism<Choice<_,_>, _> =
+            ((fun x -> match x with | Choice2Of2 v -> Some v | _ -> None),
+                (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
+
+/// Optional custom operators for composing optics. Provided as syntactic
+/// alternatives to more verbose composition functions in `Aether.Compose`.
 module Operators =
 
-    (* Composition Operators
+    /// Compose a lens with a lens, giving a lens
+    let inline (>-->) l1 l2 =
+        Compose.lensWithLens l1 l2
 
-       Operators as syntactical alternatives to more verbose composition
-       functions given. These are expected to be much more commonly used
-       and syntactially provide more clues as to their function. *)
+    /// Compose a lens and a prism, giving a prism
+    let inline (>-?>) l1 l2 =
+        Compose.lensWithPrism l1 l2
 
-    /// Compose a total lens and a total lens, giving a total lens
-    let (>-->) l1 l2 =
-        Compose.totalLensTotalLens l1 l2
+    /// Compose a prism and a lens, giving a prism
+    let inline (>?->) l1 l2 =
+        Compose.prismWithLens l1 l2
 
-    /// Compose a total lens and a partial lens, giving a partial lens
-    let (>-?>) l1 l2 =
-        Compose.totalLensPartialLens l1 l2
+    /// Compose a prism with a prism, giving a prism
+    let inline (>??>) l1 l2 =
+        Compose.prismWithPrism l1 l2
 
-    /// Compose a partial lens and a total lens, giving a partial lens
-    let (>?->) l1 l2 =
-        Compose.partialLensTotalLens l1 l2
+    /// Compose a lens with an isomorphism, giving a total lens
+    let inline (<-->) l i =
+        Compose.lensWithIsomorphism l i
 
-    /// Compose two partial lenses, giving a partial lens
-    let (>??>) l1 l2 =
-        Compose.partialLensPartialLens l1 l2
+    /// Compose a total lens with a partial isomorphism, giving a prism
+    let inline (<-?>) l i =
+        Compose.lensWithPartialIsomorphism l i
 
-    /// Compose a total lens with a total isomorphism, giving a total lens
-    let (<-->) l i =
-        Compose.totalLensTotalIsomorphism l i
+    /// Compose a prism with an isomorphism, giving a prism
+    let inline (<?->) l i =
+        Compose.prismWithIsomorphism l i
 
-    /// Compose a total lens with a partial isomorphism, giving a partial lens
-    let (<-?>) l i =
-        Compose.totalLensPartialIsomorphism l i
-
-    /// Compose a partial lens with a total isomorphism, giving a partial lens
-    let (<?->) l i =
-        Compose.partialLensTotalIsomorphism l i
-
-    /// Compose a partial lens with a partial isomorphism, giving a partial lens
-    let (<??>) l i =
-        Compose.partialLensPartialIsomorphism l i
+    /// Compose a prism with a partial isomorphism, giving a prism
+    let inline (<??>) l i =
+        Compose.prismWithPartialIsomorphism l i
 
     (* Function Operators
 
        Operators as infix alternatives to some of the standard get, set,
-       modify functions (getL, setL, etc.) Should likely be used rather 
-       sparingly and in specific controlled areas unless you're aiming for 
+       modify functions (getL, setL, etc.) Should likely be used rather
+       sparingly and in specific controlled areas unless you're aiming for
        symbol soup. *)
 
-    /// Get a value using a total lens
-    let (^.) (a: 'a) (l: Lens<'a,'b>) : 'b =
+    /// Get a value using a lens
+    let inline (^.) (a: 'a) (l: Lens<'a,'b>) : 'b =
         Lens.get l a
 
-    /// Get a value using a partial lens
-    let (^?.) (a: 'a) (l: PLens<'a,'b>) : 'b option =
-        Lens.getPartial l a
+    /// Get a value using a prism
+    let inline (^?.) (a: 'a) (l: Prism<'a,'b>) : 'b option =
+        Prism.get l a
 
-    /// Set a value using a total lens
-    let (^=) (b: 'b) (l: Lens<'a,'b>) : 'a -> 'a =
+    /// Set a value using a lens
+    let inline (^=) (b: 'b) (l: Lens<'a,'b>) : 'a -> 'a =
         Lens.set l b
 
-    /// Set a value using a partial lens
-    let (^?=) (b: 'b) (l: PLens<'a,'b>) : 'a -> 'a =
-        Lens.setPartial l b
+    /// Set a value using a prism
+    let inline (^?=) (b: 'b) (l: Prism<'a,'b>) : 'a -> 'a =
+        Prism.set l b
 
-    /// Modify a value using a total lens
-    let (^%=) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
+    /// Modify a value using a lens
+    let inline (^%=) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
         Lens.map l f
 
-    /// Modify a value using a partial lens
-    let (^?%=) (f: 'b -> 'b) (l: PLens<'a,'b>) : 'a -> 'a =
-        Lens.mapPartial l f
+    /// Modify a value using a prism
+    let inline (^?%=) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
+        Prism.map l f
