@@ -11,10 +11,10 @@ open Swensen.Unquote
 
 [<AutoOpen>]
 module Data =
-    let chars : Iso<string, char[]> =
+    let chars : Isomorphism<string, char[]> =
         (fun x -> x.ToCharArray ()), (fun x -> String (x))
 
-    let rev : Iso<char[], char[]> =
+    let rev : Isomorphism<char[], char[]> =
         Array.rev, Array.rev
 
 module ``Built-in Lenses`` =
