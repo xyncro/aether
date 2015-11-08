@@ -1,56 +1,50 @@
-#I "packages/FAKE/tools"
-#r "packages/FAKE/tools/FakeLib.dll"
+#I "packages/build/FAKE/tools"
+#r "packages/build/FAKE/tools/FakeLib.dll"
 
 open Fake
 
 // Dirs
 
-let tempDir = "./temp"
-let srcDir = tempDir + "/src"
+let tempDir = "temp"
 
 // Clean
 
 Target "Clean" (fun _ ->
     CleanDirs [ tempDir ])
 
-// Restore Packages
-
-Target "Restore" (fun _ ->
-    RestorePackages ())
-
 // Build
 
 Target "Build" (fun _ ->
-    !! "src/**/*.fsproj"
-    |> MSBuildRelease srcDir "Build" 
-    |> Log "Build Source: ")
+    build (fun x ->
+        { x with
+            Properties =
+                [ "Optimize",      environVarOrDefault "Build.Optimize"      "True"
+                  "DebugSymbols",  environVarOrDefault "Build.DebugSymbols"  "True"
+                  "Configuration", environVarOrDefault "Build.Configuration" "Release" ]
+            Targets =
+                [ "Build" ]
+            Verbosity = Some Quiet }) "Aether.sln")
 
-// Publish
+// Package
 
-Target "Publish" (fun _ ->
-    NuGet (fun p ->
+Target "Pack" (fun _ ->
+    Paket.Pack (fun p ->
         { p with
-              Authors =
-                [ "Andrew Cherry"
-                  "Marcus Griep" ]
-              Project = "Aether"
-              OutputPath = tempDir
-              WorkingDir = srcDir
-              Version = "8.0.0-b1"
-              AccessKey = getBuildParamOrDefault "nuget_key" ""
-              Publish = hasBuildParam "nuget_key"
-              Dependencies = []
-              Files =
-                [ "Aether.dll", Some "lib/net35", None
-                  "Aether.pdb", Some "lib/net35", None
-                  "Aether.xml", Some "lib/net35", None ] })
-              "./nuget/Aether.nuspec")
+            OutputPath = tempDir }))
+
+Target "Push" (fun _ ->
+    Paket.Push (fun p ->
+        { p with
+            WorkingDir = tempDir }))
 
 // Dependencies
 
-"Clean"
-    ==> "Restore"
-    ==> "Build"
-    ==> "Publish"
+Target "Default" DoNothing
 
-RunTargetOrDefault "Publish"
+"Clean"
+    ==> "Build"
+    ==> "Pack"
+    =?> ("Push", Option.isSome (environVarOrNone "nugetkey"))
+    ==> "Default"
+
+RunTargetOrDefault "Default"
