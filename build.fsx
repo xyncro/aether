@@ -12,10 +12,6 @@ let tempDir = "./temp"
 Target "Clean" (fun _ ->
     CleanDirs [ tempDir ])
 
-// Restore Packages
-
-Target "Restore" (fun _ ->
-    RestorePackages ())
 
 // Build
 
@@ -28,7 +24,7 @@ Target "Build" (fun _ ->
                   "Configuration", environVarOrDefault "Build.Configuration" "Release" ]
             Targets =
                 [ "Build" ]
-            Verbosity = Some Quiet }) "Aether.sln")
+            Verbosity = Some Quiet }) "./Aether.sln")
 
 // Publish
 
@@ -45,7 +41,6 @@ Target "Push" (fun _ ->
 // Dependencies
 
 "Clean"
-    ==> "Restore"
     ==> "Build"
     ==> "Pack"
     ==> "Push"
