@@ -30,11 +30,13 @@ Target "Build" (fun _ ->
 Target "Publish" (fun _ ->
     NuGet (fun p ->
         { p with
-              Authors = [ "Andrew Cherry" ]
+              Authors =
+                [ "Andrew Cherry"
+                  "Marcus Griep" ]
               Project = "Aether"
               OutputPath = tempDir
               WorkingDir = srcDir
-              Version = "7.0.1"
+              Version = "7.0.2"
               AccessKey = getBuildParamOrDefault "nuget_key" ""
               Publish = hasBuildParam "nuget_key"
               Dependencies = []
