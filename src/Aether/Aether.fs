@@ -16,10 +16,10 @@ type Prism<'a,'b> = ('a -> 'b option) * ('b -> 'a -> 'a)
 // Isomorphisms
 
 /// Total isomorphism of a <> b
-type Iso<'a,'b> = ('a -> 'b) * ('b -> 'a)
+type Isomorphism<'a,'b> = ('a -> 'b) * ('b -> 'a)
 
 /// Partial isomorphism of a <> b
-type PIso<'a,'b> = ('a -> 'b option) * ('b -> 'a)
+type PartialIsomorphism<'a,'b> = ('a -> 'b option) * ('b -> 'a)
 
 /// Functions for using lenses to get, set, and modify values on
 /// product-types, such as tuples and records.
@@ -39,7 +39,7 @@ module Lens =
         fun f a -> s (f (g a)) a
 
     /// Converts an Isomorphism into a Lens
-    let ofIso ((f, t) : Iso<'a,'b>) : Lens<'a,'b> =
+    let ofIsomorphism ((f, t) : Isomorphism<'a,'b>) : Lens<'a,'b> =
         f, (fun b _ -> t b)
 
 /// Functions for using prisms to get, set, and modify values on
@@ -64,7 +64,7 @@ module Prism =
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
     /// Converts a Partial Isomorphism into a Prism
-    let ofPIso ((f, t) : PIso<'a,'b>) : Prism<'a,'b> =
+    let ofPartialIsomorphism ((f, t) : PartialIsomorphism<'a,'b>) : Prism<'a,'b> =
         f, (fun b _ -> t b)
 
 /// Functions for composing lenses, prisms, and isomorphisms, each of which
@@ -97,22 +97,22 @@ module Compose =
         (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
 
     /// Compose a lens with an isomorphism, giving a lens
-    let lensWithIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Iso<'b,'c>) : Lens<'a,'c> =
+    let lensWithIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Isomorphism<'b,'c>) : Lens<'a,'c> =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
     /// Compose a lens with a partial isomorphism, giving a prism
-    let lensWithPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PIso<'b,'c>) : Prism<'a,'c> =
+    let lensWithPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PartialIsomorphism<'b,'c>) : Prism<'a,'c> =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
     /// Compose a prism with an isomorphism, giving a prism
-    let prismWithIsomorphism ((g, s): Prism<'a,'b>) ((f, t): Iso<'b, 'c>) : Prism<'a,'c> =
+    let prismWithIsomorphism ((g, s): Prism<'a,'b>) ((f, t): Isomorphism<'b, 'c>) : Prism<'a,'c> =
         (fun a -> Option.map f (g a)),
         (fun c a -> s (t c) a)
 
     /// Compose a lens with a partial isomorphism, giving a prism
-    let prismWithPartialIsomorphism ((g, s): Prism<'a,'b>) ((f, t): PIso<'b,'c>) : Prism<'a,'c> =
+    let prismWithPartialIsomorphism ((g, s): Prism<'a,'b>) ((f, t): PartialIsomorphism<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.bind f (g a)),
         (fun c a -> s (t c) a)
 
@@ -120,8 +120,9 @@ module Compose =
 /// lists and maps, along with an id_ lens.
 [<AutoOpen>]
 module Optics =
+
     /// Identity lens returning the original item regardless of modification.
-    /// Useful for composing a lens out of a chain of one or more isomorphisms.
+    /// Useful for composing a lens out of a chain of one or more isomorphisms/partial isomorphisms.
     let id_ : Lens<'a,'a> =
         (fun x -> x), (fun x _ -> x)
 
@@ -135,11 +136,14 @@ module Optics =
 
     [<RequireQualifiedAccess>]
     module Array =
-        let list_ : Iso<'v[], 'v list> =
+
+        /// Isomorphism to an list
+        let list_ : Isomorphism<'v[], 'v list> =
             Array.toList, Array.ofList
 
     [<RequireQualifiedAccess>]
     module List =
+
         /// Prism to the head of a list
         let head_ : Prism<'v list, 'v> =
             (function | h :: _ -> Some h | _ -> None),
@@ -156,34 +160,36 @@ module Optics =
             (fun t -> function | h :: _ -> h :: t | [] -> [])
 
         /// Isomorphism to an array
-        let array_ : Iso<'v list, 'v[]> =
+        let array_ : Isomorphism<'v list, 'v[]> =
             List.toArray, List.ofArray
 
     [<RequireQualifiedAccess>]
     module Map =
+
         /// Prism to a value associated with a key in a map
         let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
             Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
 
         /// Weak Isomorphism to an array of key-value pairs
-        let array_ : Iso<Map<'k,'v>, ('k * 'v)[]> =
+        let array_ : Isomorphism<Map<'k,'v>, ('k * 'v)[]> =
             Map.toArray, Map.ofArray
 
         /// Weak Isomorphism to a list of key-value pairs
-        let list_ : Iso<Map<'k,'v>, ('k * 'v) list> =
+        let list_ : Isomorphism<Map<'k,'v>, ('k * 'v) list> =
             Map.toList, Map.ofList
 
     [<RequireQualifiedAccess>]
     module Choice =
+
         /// Prism to Choice1Of2
         let choice1Of2_ : Prism<Choice<_,_>, _> =
             ((fun x -> match x with | Choice1Of2 v -> Some v | _ -> None),
-                (fun v x -> match x with | Choice1Of2 _ -> Choice1Of2 v | _ -> x))
+             (fun v x -> match x with | Choice1Of2 _ -> Choice1Of2 v | _ -> x))
 
         /// Prism to Choice2Of2
         let choice2Of2_ : Prism<Choice<_,_>, _> =
             ((fun x -> match x with | Choice2Of2 v -> Some v | _ -> None),
-                (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
+             (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
 
 /// Optional custom operators for composing optics. Provided as syntactic
 /// alternatives to more verbose composition functions in `Aether.Compose`.
