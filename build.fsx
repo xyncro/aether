@@ -5,13 +5,12 @@ open Fake
 
 // Dirs
 
-let tempDir = "./temp"
+let tempDir = "temp"
 
 // Clean
 
 Target "Clean" (fun _ ->
     CleanDirs [ tempDir ])
-
 
 // Build
 
@@ -26,7 +25,7 @@ Target "Build" (fun _ ->
                 [ "Build" ]
             Verbosity = Some Quiet }) "Aether.sln")
 
-// Publish
+// Package
 
 Target "Pack" (fun _ ->
     Paket.Pack (fun p ->
@@ -40,9 +39,12 @@ Target "Push" (fun _ ->
 
 // Dependencies
 
+Target "Default" DoNothing
+
 "Clean"
     ==> "Build"
     ==> "Pack"
-    ==> "Push"
+    =?> ("Push", Option.isSome (environVarOrNone "nugetkey"))
+    ==> "Default"
 
-RunTargetOrDefault "Push"
+RunTargetOrDefault "Default"
