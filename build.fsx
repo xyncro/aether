@@ -1,5 +1,5 @@
-#I "packages/FAKE/tools"
-#r "packages/FAKE/tools/FakeLib.dll"
+#I "packages/build/FAKE/tools"
+#r "packages/build/FAKE/tools/FakeLib.dll"
 
 open Fake
 
