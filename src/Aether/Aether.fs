@@ -18,8 +18,8 @@ type Prism<'a,'b> = ('a -> 'b option) * ('b -> 'a -> 'a)
 /// Total isomorphism of a <> b
 type Isomorphism<'a,'b> = ('a -> 'b) * ('b -> 'a)
 
-/// Partial isomorphism of a <> b
-type PartialIsomorphism<'a,'b> = ('a -> 'b option) * ('b -> 'a)
+/// Epimorphism of a <> b
+type Epimorphism<'a,'b> = ('a -> 'b option) * ('b -> 'a)
 
 /// Functions for using lenses to get, set, and modify values on
 /// product-types, such as tuples and records.
@@ -38,7 +38,7 @@ module Lens =
     let map ((g, s): Lens<'a,'b>) =
         fun f a -> s (f (g a)) a
 
-    /// Converts an Isomorphism into a Lens
+    /// Converts an isomorphism into a lens
     let ofIsomorphism ((f, t) : Isomorphism<'a,'b>) : Lens<'a,'b> =
         f, (fun b _ -> t b)
 
@@ -51,20 +51,20 @@ module Prism =
     let get ((g, _): Prism<'a,'b>) =
         fun a -> g a
 
-    /// Get a value or a default using a partial lens
+    /// Get a value or a default using a prism
     let getOrElse ((g, _): Prism<'a,'b>) =
         fun b a -> g a |> function | Some b -> b | _ -> b
 
-    /// Set a value using a partial lens
+    /// Set a value using a prism
     let set ((_, s): Prism<'a,'b>) =
         fun b a -> s b a
 
-    /// Modify a value using a partial lens
+    /// Modify a value using a prism
     let map ((g, s): Prism<'a,'b>) =
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
-    /// Converts a Partial Isomorphism into a Prism
-    let ofPartialIsomorphism ((f, t) : PartialIsomorphism<'a,'b>) : Prism<'a,'b> =
+    /// Converts an epimorphism into a prism
+    let ofEpimorphism ((f, t) : Epimorphism<'a,'b>) : Prism<'a,'b> =
         f, (fun b _ -> t b)
 
 /// Functions for composing lenses, prisms, and isomorphisms, each of which
@@ -101,8 +101,8 @@ module Compose =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
-    /// Compose a lens with a partial isomorphism, giving a prism
-    let lensWithPartialIsomorphism ((g, s): Lens<'a,'b>) ((f, t): PartialIsomorphism<'b,'c>) : Prism<'a,'c> =
+    /// Compose a lens with an epimorphism, giving a prism
+    let lensWithEpimorphism ((g, s): Lens<'a,'b>) ((f, t): Epimorphism<'b,'c>) : Prism<'a,'c> =
         (fun a -> f (g a)),
         (fun c a -> s (t c) a)
 
@@ -111,8 +111,8 @@ module Compose =
         (fun a -> Option.map f (g a)),
         (fun c a -> s (t c) a)
 
-    /// Compose a lens with a partial isomorphism, giving a prism
-    let prismWithPartialIsomorphism ((g, s): Prism<'a,'b>) ((f, t): PartialIsomorphism<'b,'c>) : Prism<'a,'c> =
+    /// Compose a lens with an epimorphism, giving a prism
+    let prismWithEpimorphism ((g, s): Prism<'a,'b>) ((f, t): Epimorphism<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.bind f (g a)),
         (fun c a -> s (t c) a)
 
@@ -122,7 +122,7 @@ module Compose =
 module Optics =
 
     /// Identity lens returning the original item regardless of modification.
-    /// Useful for composing a lens out of a chain of one or more isomorphisms/partial isomorphisms.
+    /// Useful for composing a lens out of a chain of one or more isomorphisms/epimorphisms.
     let id_ : Lens<'a,'a> =
         (fun x -> x), (fun x _ -> x)
 
@@ -215,17 +215,17 @@ module Operators =
     let inline (<-->) l i =
         Compose.lensWithIsomorphism l i
 
-    /// Compose a total lens with a partial isomorphism, giving a prism
+    /// Compose a total lens with an epimorphism, giving a prism
     let inline (<-?>) l i =
-        Compose.lensWithPartialIsomorphism l i
+        Compose.lensWithEpimorphism l i
 
     /// Compose a prism with an isomorphism, giving a prism
     let inline (<?->) l i =
         Compose.prismWithIsomorphism l i
 
-    /// Compose a prism with a partial isomorphism, giving a prism
+    /// Compose a prism with an epimorphism, giving a prism
     let inline (<??>) l i =
-        Compose.prismWithPartialIsomorphism l i
+        Compose.prismWithEpimorphism l i
 
     (* Function Operators
 
