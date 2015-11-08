@@ -2,5 +2,14 @@ source http://nuget.org/api/v2
 
 nuget Fake
 nuget Nuget.CommandLine
-nuget NUnit
-nuget Unquote
+
+group Test
+  framework: >= net45
+  source http://nuget.org/api/v2
+
+  nuget FSharp.Core 3.1.2.5 redirects: on
+  nuget FsCheck
+  nuget FsCheck.Xunit
+  nuget Unquote
+  nuget xunit
+  nuget xunit.runner.console

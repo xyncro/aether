@@ -1,2 +1,6 @@
-NUnit
-Unquote
+group Test
+  FSharp.Core
+  FsCheck
+  FsCheck.Xunit
+  Unquote
+  xunit
