@@ -36,7 +36,7 @@ Target "Publish" (fun _ ->
               Project = "Aether"
               OutputPath = tempDir
               WorkingDir = srcDir
-              Version = "7.0.2"
+              Version = "8.0.0-b1"
               AccessKey = getBuildParamOrDefault "nuget_key" ""
               Publish = hasBuildParam "nuget_key"
               Dependencies = []
