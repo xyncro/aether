@@ -32,27 +32,27 @@ module ``Built-in Lenses`` =
 
 module ``Built-in Prisms`` =
     [<Property>]
-    let ``choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
+    let ``Choice.choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
         Prism.followsPrismLaws Choice.choice1Of2_ outer inner dummy f
 
     [<Property>]
-    let ``choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
+    let ``Choice.choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
         Prism.followsPrismLaws Choice.choice2Of2_ outer inner dummy f
 
     [<Property>]
-    let ``head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
+    let ``List.head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
         Prism.followsPrismLaws List.head_ outer inner dummy f
 
     [<Property>]
-    let ``tail_ follows the Prism Laws`` (outer : obj list) inner dummy f =
+    let ``List.tail_ follows the Prism Laws`` (outer : obj list) inner dummy f =
         Prism.followsPrismLaws List.tail_ outer inner dummy f
 
     [<Property>]
-    let ``pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : obj list) inner dummy f =
+    let ``List.pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : obj list) inner dummy f =
         Prism.followsPrismLaws (List.pos_ idx.Get) outer inner dummy f
 
     [<Property>]
-    let ``key_ follows the Prism Laws`` key (outer : Map<string,obj>) inner dummy f =
+    let ``Map.key_ follows the Prism Laws`` key (outer : Map<string,obj>) inner dummy f =
         Prism.followsPrismLaws (Map.key_ key) outer inner dummy f
 
 module ``Built-in Isomorphisms`` =
@@ -73,11 +73,11 @@ module ``Built-in Isomorphisms`` =
         Iso.followsIsoLaws List.array_ outer inner dummy f
 
     [<Property>]
-    let ``choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =
+    let ``Choice.choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =
         PIso.followsWeakPIsoLaws ((fst Choice.choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy
 
     [<Property>]
-    let ``choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy =
+    let ``Choice.choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy =
         PIso.followsPIsoLaws (fst Choice.choice1Of2_,Choice1Of2) outer inner dummy
 
 type MapExample =
