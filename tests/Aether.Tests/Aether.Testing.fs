@@ -3,8 +3,8 @@
 open FsCheck
 open Swensen.Unquote
 
-/// Properties that can be used to evaluate the conformance of Lens, Prism, and Isos
-/// to certain invariants.
+/// Properties that can be used to evaluate the conformance of Lenses, Prisms,
+/// Isomorphisms, and Epimorphisms to certain invariants.
 module Properties =
     /// Lens properties
     [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
@@ -150,7 +150,7 @@ module Properties =
 
     /// Isomorphism properties
     [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-    module Iso =
+    module Isomorphism =
         let asLens (f, t) = f, (fun c _ -> t c)
 
         /// Requires that mapping a value through an isomorphism and then mapping it
@@ -167,7 +167,7 @@ module Properties =
 
         /// Requires that an isomorphism demonstrates certain properties to ensure
         /// unidirectional isomorphic operations are sane.
-        let inline followsWeakIsoLaws iso outer inner dummy =
+        let inline followsWeakIsomorphismLaws iso outer inner dummy =
             let isoAsLens = asLens iso
             Lens.getSetIdentity isoAsLens outer .&.
             Lens.setSetOrderDependence isoAsLens outer inner dummy .&.
@@ -175,38 +175,38 @@ module Properties =
 
         /// Requires that an isomorphism demonstrates certain properties to ensure
         /// isomorphic operations in either direction are sane.
-        let inline followsIsoLaws iso outer inner dummy f =
+        let inline followsIsomorphismLaws iso outer inner dummy f =
             Lens.followsLensLaws (asLens iso) outer inner dummy f .&.
             roundtripEquality iso outer .&.
             converseRoundtripEquality iso inner
 
-    /// Partial Isomorphism properties
+    /// Epimorphism properties
     [<RequireQualifiedAccess;CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-    module PIso =
+    module Epimorphism =
         let asPrism (f, t) = f, (fun c _ -> t c)
 
-        /// Requires that, if mapping a value through a partial isomorphism results in a value,
+        /// Requires that, if mapping a value through an epimorphism results in a value,
         /// mapping that value back returns a value equivalent to the original.
-        let roundtripEquality isoP outer =
-            fst isoP outer |> Option.isSome ==>
+        let roundtripEquality epi outer =
+            fst epi outer |> Option.isSome ==>
                 "Roundtrip Equality" @| lazy
-                    test <@ fst isoP outer |> Option.map (snd isoP) = Some outer @>
+                    test <@ fst epi outer |> Option.map (snd epi) = Some outer @>
 
-        /// Requires that conversely mapping a value through a partial isomorphism and then
+        /// Requires that conversely mapping a value through an epimorphism and then
         /// mapping it back returns a value equivalent to the original.
-        let converseRoundtripEquality isoP inner =
+        let converseRoundtripEquality epi inner =
                 "Converse Roundtrip Equality" @| lazy
-                    test <@ snd isoP inner |> fst isoP = Some inner @>
+                    test <@ snd epi inner |> fst epi = Some inner @>
 
-        /// Requires that a partial isomorphism demonstrates minimal properties to ensure
+        /// Requires that an epimorphism demonstrates minimal properties to ensure
         /// sane operations in one direction.
-        let inline followsWeakPIsoLaws isoP outer inner dummy =
-            Prism.setSetOrderDependence (asPrism isoP) outer inner dummy .&.
-            roundtripEquality isoP outer
+        let inline followsWeakEpimorphismLaws epi outer inner dummy =
+            Prism.setSetOrderDependence (asPrism epi) outer inner dummy .&.
+            roundtripEquality epi outer
 
-        /// Requires that a partial isomorphism demonstrates minimal properties to ensure
+        /// Requires that an epimorphism demonstrates minimal properties to ensure
         /// sane operations in both directions.
-        let inline followsPIsoLaws isoP outer inner dummy =
-            Prism.setSetOrderDependence (asPrism isoP) outer inner dummy .&.
-            roundtripEquality isoP outer .&.
-            converseRoundtripEquality isoP inner
+        let inline followsEpimorphismLaws epi outer inner dummy =
+            Prism.setSetOrderDependence (asPrism epi) outer inner dummy .&.
+            roundtripEquality epi outer .&.
+            converseRoundtripEquality epi inner
