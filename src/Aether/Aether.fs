@@ -126,7 +126,7 @@ module Optics =
     let id_ : Lens<'a,'a> =
         (fun x -> x), (fun x _ -> x)
 
-    /// Lens to the First item of a tuple
+    /// Lens to the first item of a tuple
     let fst_ : Lens<('a * 'b),'a> =
         fst, (fun a t -> a, snd t)
 
