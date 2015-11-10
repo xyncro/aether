@@ -39,7 +39,7 @@ module Lens =
         fun f a -> s (f (g a)) a
 
     /// Converts an isomorphism into a lens
-    let ofIsomorphism ((f, t) : Isomorphism<'a,'b>) : Lens<'a,'b> =
+    let ofIsomorphism ((f, t): Isomorphism<'a,'b>) : Lens<'a,'b> =
         f, (fun b _ -> t b)
 
 /// Functions for using prisms to get, set, and modify values on
@@ -64,7 +64,7 @@ module Prism =
         fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
     /// Converts an epimorphism into a prism
-    let ofEpimorphism ((f, t) : Epimorphism<'a,'b>) : Prism<'a,'b> =
+    let ofEpimorphism ((f, t): Epimorphism<'a,'b>) : Prism<'a,'b> =
         f, (fun b _ -> t b)
 
 /// Functions for composing lenses, prisms, and isomorphisms, each of which
@@ -126,7 +126,7 @@ module Optics =
     let id_ : Lens<'a,'a> =
         (fun x -> x), (fun x _ -> x)
 
-    /// Lens to the First item of a tuple
+    /// Lens to the first item of a tuple
     let fst_ : Lens<('a * 'b),'a> =
         fst, (fun a t -> a, snd t)
 
@@ -170,6 +170,14 @@ module Optics =
         let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
             Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
 
+        /// Lens to a value option associated with a key in a map
+        let value_ (k: 'k) : Lens<Map<'k,'v>, 'v option> =
+            Map.tryFind k,
+            (fun v x ->
+                match v with
+                | Some v -> Map.add k v x
+                | _ -> Map.remove k x)
+
         /// Weak Isomorphism to an array of key-value pairs
         let array_ : Isomorphism<Map<'k,'v>, ('k * 'v)[]> =
             Map.toArray, Map.ofArray
@@ -183,8 +191,7 @@ module Optics =
 
         /// Prism to the value in an Option
         let value_ : Prism<'v option, 'v> =
-            (id,
-             (fun v -> function | Some _ -> Some v | None -> None))
+            id, (fun v -> function | Some _ -> Some v | None -> None)
 
     [<RequireQualifiedAccess>]
     module Choice =
