@@ -179,6 +179,14 @@ module Optics =
             Map.toList, Map.ofList
 
     [<RequireQualifiedAccess>]
+    module Option =
+
+        /// Prism to the value in an Option
+        let value_ : Prism<'v option, 'v> =
+            (id,
+             (fun v -> function | Some _ -> Some v | None -> None))
+
+    [<RequireQualifiedAccess>]
     module Choice =
 
         /// Prism to Choice1Of2

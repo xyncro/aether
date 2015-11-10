@@ -40,6 +40,10 @@ module ``Built-in Prisms`` =
         Prism.followsPrismLaws Choice.choice2Of2_ outer inner dummy f
 
     [<Property>]
+    let ``Option.value_ follows the Prism Laws`` (outer : obj option) inner dummy f =
+        Prism.followsPrismLaws Option.value_ outer inner dummy f
+
+    [<Property>]
     let ``head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
         Prism.followsPrismLaws List.head_ outer inner dummy f
 
