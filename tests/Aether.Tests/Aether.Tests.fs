@@ -106,13 +106,13 @@ module ``Examplar Usage Tests`` =
     [<Fact>]
     let ``Updating a value not contained in a Map using a Prism`` () =
         let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
-        let newValue = Prism.set (MapExample.myMap_ >-?> Map.key_ "TestKey2") "OtherValue" example
+        let newValue = Prism.set (MapExample.myMap_ >- Map.key_ "TestKey2") "OtherValue" example
         test <@ newValue.MyMap.TryFind "TestKey2" = None @>
 
     [<Fact>]
     let ``Updating a value contained in a Map using a Prism`` () =
         let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
-        let newValue = Prism.set (MapExample.myMap_ >-?> Map.key_ "TestKey") "OtherValue" example
+        let newValue = Prism.set (MapExample.myMap_ >- Map.key_ "TestKey") "OtherValue" example
         test <@ newValue.MyMap.["TestKey"] = "OtherValue" @>
 
     [<Fact>]
@@ -201,49 +201,49 @@ module ``Isomorphism composition`` =
     module ``over a Lens`` =
         [<Fact>]
         let ``gets value`` () =
-            Lens.get (fst_ <--> chars) ("Good",()) =! [| 'G'; 'o'; 'o'; 'd' |]
+            Lens.get (fst_ >- chars) ("Good",()) =! [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``sets value`` () =
-            Lens.set (fst_ <--> chars) [| 'G'; 'o'; 'o'; 'd' |] ("Bad",()) =! ("Good",())
+            Lens.set (fst_ >- chars) [| 'G'; 'o'; 'o'; 'd' |] ("Bad",()) =! ("Good",())
 
         [<Fact>]
         let ``gets value over multiple isomorphisms`` () =
-            Lens.get (fst_ <--> chars <--> rev) ("dooG",()) =! [| 'G'; 'o'; 'o'; 'd' |]
+            Lens.get (fst_ >- chars >- rev) ("dooG",()) =! [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``sets value over multiple isomorphisms`` () =
-            Lens.set (fst_ <--> chars <--> rev) [| 'd'; 'o'; 'o'; 'G' |] ("Bad",()) =! ("Good",())
+            Lens.set (fst_ >- chars >- rev) [| 'd'; 'o'; 'o'; 'G' |] ("Bad",()) =! ("Good",())
 
     module ``over a Prism`` =
         [<Fact>]
         let ``gets value when inner exists`` () =
-            Prism.get (Choice.choice1Of2_ <?-> chars) (Choice1Of2 "Good") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+            Prism.get (Choice.choice1Of2_ >? chars) (Choice1Of2 "Good") =! Some [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``gets nothing when inner does not exist`` () =
-            Prism.get (Choice.choice2Of2_ <?-> chars) (Choice1Of2 "Bad") =! None
+            Prism.get (Choice.choice2Of2_ >? chars) (Choice1Of2 "Bad") =! None
 
         [<Fact>]
         let ``sets value when inner exists`` () =
-            Prism.set (Choice.choice1Of2_ <?-> chars) [| 'G'; 'o'; 'o'; 'd' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice1Of2_ >? chars) [| 'G'; 'o'; 'o'; 'd' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``sets nothing when inner does not exist`` () =
-            Prism.set (Choice.choice2Of2_ <?-> chars) [| 'B'; 'a'; 'd' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice2Of2_ >? chars) [| 'B'; 'a'; 'd' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``gets value when inner exists over multiple isomorphisms`` () =
-            Prism.get (Choice.choice1Of2_ <?-> chars <?-> rev) (Choice1Of2 "dooG") =! Some [| 'G'; 'o'; 'o'; 'd' |]
+            Prism.get (Choice.choice1Of2_ >? chars >? rev) (Choice1Of2 "dooG") =! Some [| 'G'; 'o'; 'o'; 'd' |]
 
         [<Fact>]
         let ``gets nothing when inner does not exist over multiple isomorphisms`` () =
-            Prism.get (Choice.choice2Of2_ <?-> chars <?-> rev) (Choice1Of2 "daB") =! None
+            Prism.get (Choice.choice2Of2_ >? chars >? rev) (Choice1Of2 "daB") =! None
 
         [<Fact>]
         let ``sets value when inner exists over multiple isomorphisms`` () =
-            Prism.set (Choice.choice1Of2_ <?-> chars <?-> rev) [| 'd'; 'o'; 'o'; 'G' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice1Of2_ >? chars >? rev) [| 'd'; 'o'; 'o'; 'G' |] (Choice1Of2 "Bad") =! Choice1Of2 "Good"
 
         [<Fact>]
         let ``sets nothing when inner does not exist over multiple isomorphisms`` () =
-            Prism.set (Choice.choice2Of2_ <?-> chars <?-> rev) [| 'd'; 'a'; 'B' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"
+            Prism.set (Choice.choice2Of2_ >? chars >? rev) [| 'd'; 'a'; 'B' |] (Choice1Of2 "Good") =! Choice1Of2 "Good"

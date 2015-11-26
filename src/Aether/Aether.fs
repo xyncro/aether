@@ -1,5 +1,7 @@
 ﻿module Aether
 
+open System
+
 (* Types
 
    Types defining lenses, prisms, and isomorphisms
@@ -210,35 +212,83 @@ module Optics =
 /// alternatives to more verbose composition functions in `Aether.Compose`.
 module Operators =
 
+    type Lens = Lens with
+
+        static member inline ($) (Lens, bc: Lens<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> Compose.lensWithLens ab bc : Lens<'a,'c>
+        
+        static member inline ($) (Lens, bc: Prism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> Compose.lensWithPrism ab bc : Prism<'a,'c>
+
+        static member inline ($) (Lens, bc: Isomorphism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> Compose.lensWithIsomorphism ab bc : Lens<'a,'c>
+
+        static member inline ($) (Lens, bc: Epimorphism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> Compose.lensWithEpimorphism ab bc : Prism<'a,'c>
+
+    type Prism = Prism with
+
+        static member inline ($) (Prism, bc: Lens<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> Compose.prismWithLens ab bc : Prism<'a,'c>
+        
+        static member inline ($) (Prism, bc: Prism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> Compose.prismWithPrism ab bc : Prism<'a,'c>
+
+        static member inline ($) (Prism, bc: Isomorphism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> Compose.prismWithIsomorphism ab bc : Prism<'a,'c>
+
+        static member inline ($) (Prism, bc: Epimorphism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> Compose.prismWithEpimorphism ab bc : Prism<'a,'c>
+
+    /// Compose a lens with another optic
+    let inline (>-) o1 o2 =
+        (Lens $ o2) o1
+
+    /// Compose a prism with another optic
+    let inline (>?) o1 o2 =
+        (Prism $ o2) o1
+
+    (* Obsolete
+
+       To be removed in 9.0. *)
+
     /// Compose a lens with a lens, giving a lens
+    [<Obsolete ("Use >- instead.")>]
     let inline (>-->) l1 l2 =
         Compose.lensWithLens l1 l2
 
     /// Compose a lens and a prism, giving a prism
+    [<Obsolete ("Use >- instead.")>]
     let inline (>-?>) l1 l2 =
         Compose.lensWithPrism l1 l2
 
     /// Compose a prism and a lens, giving a prism
+    [<Obsolete ("Use >? instead.")>]
     let inline (>?->) l1 l2 =
         Compose.prismWithLens l1 l2
 
     /// Compose a prism with a prism, giving a prism
+    [<Obsolete ("Use >? instead.")>]
     let inline (>??>) l1 l2 =
         Compose.prismWithPrism l1 l2
 
     /// Compose a lens with an isomorphism, giving a total lens
+    [<Obsolete ("Use >- instead.")>]
     let inline (<-->) l i =
         Compose.lensWithIsomorphism l i
 
-    /// Compose a total lens with an epimorphism, giving a prism
+    /// Compose a lens with an epimorphism, giving a prism
+    [<Obsolete ("Use >- instead.")>]
     let inline (<-?>) l i =
         Compose.lensWithEpimorphism l i
 
     /// Compose a prism with an isomorphism, giving a prism
+    [<Obsolete ("Use >? instead.")>]
     let inline (<?->) l i =
         Compose.prismWithIsomorphism l i
 
     /// Compose a prism with an epimorphism, giving a prism
+    [<Obsolete ("Use >? instead.")>]
     let inline (<??>) l i =
         Compose.prismWithEpimorphism l i
 
@@ -266,9 +316,23 @@ module Operators =
         Prism.set l b
 
     /// Modify a value using a lens
-    let inline (^%=) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
+    let inline (^%) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
         Lens.map l f
 
     /// Modify a value using a prism
-    let inline (^?%=) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
+    let inline (^?%) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
         Prism.map l f
+
+    (* Obsolete
+
+       To be removed in 9.0. *)
+
+    /// Modify a value using a lens
+    [<Obsolete ("Use ^% instead.")>]
+    let inline (^%=) f l=
+        (^%) f l
+
+    /// Modify a value using a prism
+    [<Obsolete ("Use ^?% instead.")>]
+    let inline (^?%=) f l=
+        (^?%) f l
