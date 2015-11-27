@@ -212,32 +212,36 @@ module Optics =
 /// alternatives to more verbose composition functions in `Aether.Compose`.
 module Operators =
 
-    type Lens = Lens with
+    (* Compositions *)
 
-        static member inline ($) (Lens, bc: Lens<'b,'c>) =
+    type Lens =
+        | Lens with
+
+        static member ($) (Lens, bc: Lens<'b,'c>) =
             fun (ab: Lens<'a,'b>) -> Compose.lensWithLens ab bc : Lens<'a,'c>
         
-        static member inline ($) (Lens, bc: Prism<'b,'c>) =
+        static member ($) (Lens, bc: Prism<'b,'c>) =
             fun (ab: Lens<'a,'b>) -> Compose.lensWithPrism ab bc : Prism<'a,'c>
 
-        static member inline ($) (Lens, bc: Isomorphism<'b,'c>) =
+        static member ($) (Lens, bc: Isomorphism<'b,'c>) =
             fun (ab: Lens<'a,'b>) -> Compose.lensWithIsomorphism ab bc : Lens<'a,'c>
 
-        static member inline ($) (Lens, bc: Epimorphism<'b,'c>) =
+        static member ($) (Lens, bc: Epimorphism<'b,'c>) =
             fun (ab: Lens<'a,'b>) -> Compose.lensWithEpimorphism ab bc : Prism<'a,'c>
 
-    type Prism = Prism with
+    type Prism = 
+        | Prism with
 
-        static member inline ($) (Prism, bc: Lens<'b,'c>) =
+        static member ($) (Prism, bc: Lens<'b,'c>) =
             fun (ab: Prism<'a,'b>) -> Compose.prismWithLens ab bc : Prism<'a,'c>
         
-        static member inline ($) (Prism, bc: Prism<'b,'c>) =
+        static member ($) (Prism, bc: Prism<'b,'c>) =
             fun (ab: Prism<'a,'b>) -> Compose.prismWithPrism ab bc : Prism<'a,'c>
 
-        static member inline ($) (Prism, bc: Isomorphism<'b,'c>) =
+        static member ($) (Prism, bc: Isomorphism<'b,'c>) =
             fun (ab: Prism<'a,'b>) -> Compose.prismWithIsomorphism ab bc : Prism<'a,'c>
 
-        static member inline ($) (Prism, bc: Epimorphism<'b,'c>) =
+        static member ($) (Prism, bc: Epimorphism<'b,'c>) =
             fun (ab: Prism<'a,'b>) -> Compose.prismWithEpimorphism ab bc : Prism<'a,'c>
 
     /// Compose a lens with another optic
@@ -292,47 +296,77 @@ module Operators =
     let inline (<??>) l i =
         Compose.prismWithEpimorphism l i
 
-    (* Function Operators
+    (* Operations
 
        Operators as infix alternatives to some of the standard get, set,
        modify functions (getL, setL, etc.) Should likely be used rather
        sparingly and in specific controlled areas unless you're aiming for
        symbol soup. *)
 
-    /// Get a value using a lens
-    let inline (^.) (a: 'a) (l: Lens<'a,'b>) : 'b =
-        Lens.get l a
+    type Get =
+        | Get with
 
-    /// Get a value using a prism
-    let inline (^?.) (a: 'a) (l: Prism<'a,'b>) : 'b option =
-        Prism.get l a
+        static member ($) (Get, ab: Lens<'a,'b>) =
+            fun (a: 'a) -> Lens.get ab a : 'b
 
-    /// Set a value using a lens
-    let inline (^=) (b: 'b) (l: Lens<'a,'b>) : 'a -> 'a =
-        Lens.set l b
+        static member ($) (Get, ab: Prism<'a,'b>) =
+            fun (a: 'a) -> Prism.get ab a : 'b option
 
-    /// Set a value using a prism
-    let inline (^?=) (b: 'b) (l: Prism<'a,'b>) : 'a -> 'a =
-        Prism.set l b
+    /// Get a value using an optic
+    let inline (^.) a ab =
+        (Get $ ab) a
+
+    type Set =
+        | Set with
+
+        static member ($) (Set, ab: Lens<'a,'b>) =
+            fun (b: 'b) -> Lens.set ab b : 'a -> 'a
+
+        static member ($) (Set, ab: Prism<'a,'b>) =
+            fun (b: 'b) -> Prism.set ab b : 'a -> 'a
+
+    /// Set a value using an optic
+    let inline (^=) b ab =
+        (Set $ ab) b
+
+    type Map =
+        | Map with
+
+        static member ($) (Map, ab: Lens<'a,'b>) =
+            fun (f: 'b -> 'b) -> Lens.map ab f : 'a -> 'a
+
+        static member ($) (Map, ab: Prism<'a,'b>) =
+            fun (f: 'b -> 'b) -> Prism.map ab f : 'a -> 'a
 
     /// Modify a value using a lens
-    let inline (^%) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
-        Lens.map l f
-
-    /// Modify a value using a prism
-    let inline (^?%) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
-        Prism.map l f
+    let inline (^%) f ab =
+        (Map $ ab) f
 
     (* Obsolete
 
        To be removed in 9.0. *)
 
+    /// Get a value using a prism
+    [<Obsolete ("Use ^. instead.")>]
+    let inline (^?.) (a: 'a) (l: Prism<'a,'b>) : 'b option =
+        Prism.get l a
+
+    /// Set a value using a prism
+    [<Obsolete ("Use ^= instead.")>]
+    let inline (^?=) (b: 'b) (l: Prism<'a,'b>) : 'a -> 'a =
+        Prism.set l b
+
+    /// Modify a value using a prism
+    [<Obsolete ("Use ^% instead.")>]
+    let inline (^?%) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
+        Prism.map l f
+
     /// Modify a value using a lens
     [<Obsolete ("Use ^% instead.")>]
     let inline (^%=) f l=
-        (^%) f l
+        Lens.map f l
 
     /// Modify a value using a prism
     [<Obsolete ("Use ^?% instead.")>]
     let inline (^?%=) f l=
-        (^?%) f l
+        Prism.map f l
