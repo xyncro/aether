@@ -69,6 +69,48 @@ module Prism =
     let ofEpimorphism ((f, t): Epimorphism<'a,'b>) : Prism<'a,'b> =
         f, (fun b _ -> t b)
 
+[<RequireQualifiedAccess>]
+module Optic =
+
+    type Get =
+        | Get with
+
+        static member ($) (Get, ab: Lens<'a,'b>) =
+            fun (a: 'a) -> Lens.get ab a : 'b
+
+        static member ($) (Get, ab: Prism<'a,'b>) =
+            fun (a: 'a) -> Prism.get ab a : 'b option
+
+    /// Get a value using an optic
+    let inline get ab a =
+        (Get $ ab) a
+
+    type Set =
+        | Set with
+
+        static member ($) (Set, ab: Lens<'a,'b>) =
+            fun (b: 'b) -> Lens.set ab b : 'a -> 'a
+
+        static member ($) (Set, ab: Prism<'a,'b>) =
+            fun (b: 'b) -> Prism.set ab b : 'a -> 'a
+
+    /// Set a value using an optic
+    let inline set ab b =
+        (Set $ ab) b
+
+    type Map =
+        | Map with
+
+        static member ($) (Map, ab: Lens<'a,'b>) =
+            fun (f: 'b -> 'b) -> Lens.map ab f : 'a -> 'a
+
+        static member ($) (Map, ab: Prism<'a,'b>) =
+            fun (f: 'b -> 'b) -> Prism.map ab f : 'a -> 'a
+
+    /// Modify a value using a lens
+    let inline map ab f =
+        (Map $ ab) f
+
 /// Functions for composing lenses, prisms, and isomorphisms, each of which
 /// returns a new lens or prism based on the lenses, prisms,
 /// or isomorphisms composed.
@@ -117,6 +159,44 @@ module Compose =
     let prismWithEpimorphism ((g, s): Prism<'a,'b>) ((f, t): Epimorphism<'b,'c>) : Prism<'a,'c> =
         (fun a -> Option.bind f (g a)),
         (fun c a -> s (t c) a)
+
+    type Lens =
+        | Lens with
+
+        static member ($) (Lens, bc: Lens<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> lensWithLens ab bc : Lens<'a,'c>
+        
+        static member ($) (Lens, bc: Prism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> lensWithPrism ab bc : Prism<'a,'c>
+
+        static member ($) (Lens, bc: Isomorphism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> lensWithIsomorphism ab bc : Lens<'a,'c>
+
+        static member ($) (Lens, bc: Epimorphism<'b,'c>) =
+            fun (ab: Lens<'a,'b>) -> lensWithEpimorphism ab bc : Prism<'a,'c>
+
+    /// Compose a lens with another optic
+    let inline lens l o =
+        (Lens $ o) l
+
+    type Prism = 
+        | Prism with
+
+        static member ($) (Prism, bc: Lens<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> prismWithLens ab bc : Prism<'a,'c>
+        
+        static member ($) (Prism, bc: Prism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> prismWithPrism ab bc : Prism<'a,'c>
+
+        static member ($) (Prism, bc: Isomorphism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> prismWithIsomorphism ab bc : Prism<'a,'c>
+
+        static member ($) (Prism, bc: Epimorphism<'b,'c>) =
+            fun (ab: Prism<'a,'b>) -> prismWithEpimorphism ab bc : Prism<'a,'c>
+
+    /// Compose a prism with another optic
+    let inline prism p o =
+        (Prism $ o) p
 
 /// Various optics implemented for common types such as tuples,
 /// lists and maps, along with an id_ lens.
@@ -214,43 +294,27 @@ module Operators =
 
     (* Compositions *)
 
-    type LensOperator =
-        | LensOperator with
-
-        static member ($) (LensOperator, bc: Lens<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> Compose.lensWithLens ab bc : Lens<'a,'c>
-        
-        static member ($) (LensOperator, bc: Prism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> Compose.lensWithPrism ab bc : Prism<'a,'c>
-
-        static member ($) (LensOperator, bc: Isomorphism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> Compose.lensWithIsomorphism ab bc : Lens<'a,'c>
-
-        static member ($) (LensOperator, bc: Epimorphism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> Compose.lensWithEpimorphism ab bc : Prism<'a,'c>
-
     /// Compose a lens with another optic
-    let inline (>-) o1 o2 =
-        (LensOperator $ o2) o1
-
-    type PrismOperator = 
-        | PrismOperator with
-
-        static member ($) (PrismOperator, bc: Lens<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> Compose.prismWithLens ab bc : Prism<'a,'c>
-        
-        static member ($) (PrismOperator, bc: Prism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> Compose.prismWithPrism ab bc : Prism<'a,'c>
-
-        static member ($) (PrismOperator, bc: Isomorphism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> Compose.prismWithIsomorphism ab bc : Prism<'a,'c>
-
-        static member ($) (PrismOperator, bc: Epimorphism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> Compose.prismWithEpimorphism ab bc : Prism<'a,'c>
+    let inline (>-) l o =
+        Compose.lens l o
 
     /// Compose a prism with another optic
-    let inline (>?) o1 o2 =
-        (PrismOperator $ o2) o1
+    let inline (>?) p o =
+        Compose.prism p o
+
+    (* Operations *)
+
+    /// Get a value using an optic
+    let inline (^.) a ab =
+        Optic.get ab a
+
+    /// Set a value using an optic
+    let inline (^=) b ab =
+        Optic.set ab b
+
+    /// Modify a value using a lens
+    let inline (^%) f ab =
+        Optic.map ab f
 
     (* Obsolete
 
@@ -295,56 +359,6 @@ module Operators =
     [<Obsolete ("Use >? instead.")>]
     let inline (<??>) l i =
         Compose.prismWithEpimorphism l i
-
-    (* Operations
-
-       Operators as infix alternatives to some of the standard get, set,
-       modify functions (getL, setL, etc.) Should likely be used rather
-       sparingly and in specific controlled areas unless you're aiming for
-       symbol soup. *)
-
-    type GetOperator =
-        | GetOperator with
-
-        static member ($) (GetOperator, ab: Lens<'a,'b>) =
-            fun (a: 'a) -> Lens.get ab a : 'b
-
-        static member ($) (GetOperator, ab: Prism<'a,'b>) =
-            fun (a: 'a) -> Prism.get ab a : 'b option
-
-    /// Get a value using an optic
-    let inline (^.) a ab =
-        (GetOperator $ ab) a
-
-    type SetOperator =
-        | SetOperator with
-
-        static member ($) (SetOperator, ab: Lens<'a,'b>) =
-            fun (b: 'b) -> Lens.set ab b : 'a -> 'a
-
-        static member ($) (SetOperator, ab: Prism<'a,'b>) =
-            fun (b: 'b) -> Prism.set ab b : 'a -> 'a
-
-    /// Set a value using an optic
-    let inline (^=) b ab =
-        (SetOperator $ ab) b
-
-    type MapOperator =
-        | MapOperator with
-
-        static member ($) (MapOperator, ab: Lens<'a,'b>) =
-            fun (f: 'b -> 'b) -> Lens.map ab f : 'a -> 'a
-
-        static member ($) (MapOperator, ab: Prism<'a,'b>) =
-            fun (f: 'b -> 'b) -> Prism.map ab f : 'a -> 'a
-
-    /// Modify a value using a lens
-    let inline (^%) f ab =
-        (MapOperator $ ab) f
-
-    (* Obsolete
-
-       To be removed in 9.0. *)
 
     /// Get a value using a prism
     [<Obsolete ("Use ^. instead.")>]
