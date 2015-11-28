@@ -46,7 +46,7 @@ module Prism =
 [<RequireQualifiedAccess>]
 module Optic =
 
-    type _Get =
+    type Get =
         | Get with
 
         static member (^.) (Get, (g, _): Lens<'a,'b>) =
@@ -61,7 +61,7 @@ module Optic =
     let inline get ab a =
         (Get ^. ab) a
 
-    type _Set =
+    type Set =
         | Set with
 
         static member (^=) (Set, (_, s): Lens<'a,'b>) =
@@ -76,7 +76,7 @@ module Optic =
     let inline set ab b =
         (Set ^= ab) b
 
-    type _Map =
+    type Map =
         | Map with
 
         static member (^%) (Map, (g, s): Lens<'a,'b>) =
@@ -101,7 +101,7 @@ module Optic =
 [<RequireQualifiedAccess>]
 module Compose =
 
-    type _Lens =
+    type Lens =
         | Lens with
 
         static member (>-) (Lens, (g2, s2): Lens<'b,'c>) =
@@ -128,7 +128,7 @@ module Compose =
     let inline lens l o =
         (Lens >- o) l
 
-    type _Prism = 
+    type Prism = 
         | Prism with
 
         static member (>?) (Prism, (g2, s2): Lens<'b,'c>) =
