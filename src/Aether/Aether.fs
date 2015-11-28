@@ -1,7 +1,5 @@
 ﻿module Aether
 
-open System
-
 (* Types
 
    Types defining lenses, prisms, and isomorphisms
@@ -10,35 +8,27 @@ open System
    requires no dependency on Aether, just an implicit structuring. *)
 
 /// Lens from a -> b
-type Lens<'a,'b> = ('a -> 'b) * ('b -> 'a -> 'a)
+type Lens<'a,'b> =
+    ('a -> 'b) * ('b -> 'a -> 'a)
 
 /// Prism from a -> b
-type Prism<'a,'b> = ('a -> 'b option) * ('b -> 'a -> 'a)
+type Prism<'a,'b> =
+    ('a -> 'b option) * ('b -> 'a -> 'a)
 
 // Isomorphisms
 
-/// Total isomorphism of a <> b
-type Isomorphism<'a,'b> = ('a -> 'b) * ('b -> 'a)
+/// Isomorphism of a <> b
+type Isomorphism<'a,'b> =
+    ('a -> 'b) * ('b -> 'a)
 
 /// Epimorphism of a <> b
-type Epimorphism<'a,'b> = ('a -> 'b option) * ('b -> 'a)
+type Epimorphism<'a,'b> =
+    ('a -> 'b option) * ('b -> 'a)
 
 /// Functions for using lenses to get, set, and modify values on
 /// product-types, such as tuples and records.
 [<RequireQualifiedAccess>]
 module Lens =
-
-    /// Get a value using a lens
-    let get ((g, _): Lens<'a,'b>) =
-        fun a -> g a
-
-    /// Set a value using a lens
-    let set ((_, s): Lens<'a,'b>) =
-        fun b a -> s b a
-
-    /// Modify a value using a lens
-    let map ((g, s): Lens<'a,'b>) =
-        fun f a -> s (f (g a)) a
 
     /// Converts an isomorphism into a lens
     let ofIsomorphism ((f, t): Isomorphism<'a,'b>) : Lens<'a,'b> =
@@ -48,22 +38,6 @@ module Lens =
 /// sum-types, such as discriminated unions.
 [<RequireQualifiedAccess>]
 module Prism =
-
-    /// Get a value option using a prism
-    let get ((g, _): Prism<'a,'b>) =
-        fun a -> g a
-
-    /// Get a value or a default using a prism
-    let getOrElse ((g, _): Prism<'a,'b>) =
-        fun b a -> g a |> function | Some b -> b | _ -> b
-
-    /// Set a value using a prism
-    let set ((_, s): Prism<'a,'b>) =
-        fun b a -> s b a
-
-    /// Modify a value using a prism
-    let map ((g, s): Prism<'a,'b>) =
-        fun f a -> Option.map f (g a) |> function | Some b -> s b a | _ -> a
 
     /// Converts an epimorphism into a prism
     let ofEpimorphism ((f, t): Epimorphism<'a,'b>) : Prism<'a,'b> =
@@ -75,11 +49,13 @@ module Optic =
     type Get =
         | Get with
 
-        static member ($) (Get, ab: Lens<'a,'b>) =
-            fun (a: 'a) -> Lens.get ab a : 'b
+        static member ($) (Get, (g, _): Lens<'a,'b>) =
+            fun (a: 'a) ->
+                g a : 'b
 
-        static member ($) (Get, ab: Prism<'a,'b>) =
-            fun (a: 'a) -> Prism.get ab a : 'b option
+        static member ($) (Get, (g, _): Prism<'a,'b>) =
+            fun (a: 'a) ->
+                g a : 'b option
 
     /// Get a value using an optic
     let inline get ab a =
@@ -88,11 +64,13 @@ module Optic =
     type Set =
         | Set with
 
-        static member ($) (Set, ab: Lens<'a,'b>) =
-            fun (b: 'b) -> Lens.set ab b : 'a -> 'a
+        static member ($) (Set, (_, s): Lens<'a,'b>) =
+            fun (b: 'b) ->
+                s b : 'a -> 'a
 
-        static member ($) (Set, ab: Prism<'a,'b>) =
-            fun (b: 'b) -> Prism.set ab b : 'a -> 'a
+        static member ($) (Set, (_, s): Prism<'a,'b>) =
+            fun (b: 'b) ->
+                s b : 'a -> 'a
 
     /// Set a value using an optic
     let inline set ab b =
@@ -101,11 +79,14 @@ module Optic =
     type Map =
         | Map with
 
-        static member ($) (Map, ab: Lens<'a,'b>) =
-            fun (f: 'b -> 'b) -> Lens.map ab f : 'a -> 'a
+        static member ($) (Map, (g, s): Lens<'a,'b>) =
+            fun (f: 'b -> 'b) ->
+                (fun a -> s (f (g a)) a) : 'a -> 'a
 
-        static member ($) (Map, ab: Prism<'a,'b>) =
-            fun (f: 'b -> 'b) -> Prism.map ab f : 'a -> 'a
+        static member ($) (Map, (g, s): Prism<'a,'b>) =
+            fun (f: 'b -> 'b) ->
+                (fun a -> Option.map f (g a) |> function | Some b -> s b a 
+                                                         | _ -> a) : 'a -> 'a
 
     /// Modify a value using a lens
     let inline map ab f =
@@ -120,60 +101,28 @@ module Optic =
 [<RequireQualifiedAccess>]
 module Compose =
 
-    /// Compose a lens with a lens, giving a lens
-    let lensWithLens ((g1, s1): Lens<'a,'b>) ((g2, s2): Lens<'b,'c>) : Lens<'a,'c> =
-        (fun a -> g2 (g1 a)),
-        (fun c a -> s1 (s2 c (g1 a)) a)
-
-    /// Compose a lens with a prism, giving a prism
-    let lensWithPrism ((g1, s1): Lens<'a,'b>) ((g2, s2): Prism<'b,'c>) : Prism<'a,'c> =
-        (fun a -> g2 (g1 a)),
-        (fun c a -> s1 (s2 c (g1 a)) a)
-
-    /// Compose a prism and a lens, giving a prism
-    let prismWithLens ((g1, s1): Prism<'a,'b>) ((g2, s2): Lens<'b,'c>) : Prism<'a,'c> =
-        (fun a -> Option.map g2 (g1 a)),
-        (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
-
-    /// Compose a prism with a prism, giving a prism
-    let prismWithPrism ((g1, s1): Prism<'a,'b>) ((g2, s2): Prism<'b,'c>) : Prism<'a,'c> =
-        (fun a -> Option.bind g2 (g1 a)),
-        (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a | _ -> a)
-
-    /// Compose a lens with an isomorphism, giving a lens
-    let lensWithIsomorphism ((g, s): Lens<'a,'b>) ((f, t): Isomorphism<'b,'c>) : Lens<'a,'c> =
-        (fun a -> f (g a)),
-        (fun c a -> s (t c) a)
-
-    /// Compose a lens with an epimorphism, giving a prism
-    let lensWithEpimorphism ((g, s): Lens<'a,'b>) ((f, t): Epimorphism<'b,'c>) : Prism<'a,'c> =
-        (fun a -> f (g a)),
-        (fun c a -> s (t c) a)
-
-    /// Compose a prism with an isomorphism, giving a prism
-    let prismWithIsomorphism ((g, s): Prism<'a,'b>) ((f, t): Isomorphism<'b, 'c>) : Prism<'a,'c> =
-        (fun a -> Option.map f (g a)),
-        (fun c a -> s (t c) a)
-
-    /// Compose a lens with an epimorphism, giving a prism
-    let prismWithEpimorphism ((g, s): Prism<'a,'b>) ((f, t): Epimorphism<'b,'c>) : Prism<'a,'c> =
-        (fun a -> Option.bind f (g a)),
-        (fun c a -> s (t c) a)
-
     type Lens =
         | Lens with
 
-        static member ($) (Lens, bc: Lens<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> lensWithLens ab bc : Lens<'a,'c>
+        static member ($) (Lens, (g2, s2): Lens<'b,'c>) =
+            fun ((g1, s1): Lens<'a,'b>) ->
+                (fun a -> g2 (g1 a)),
+                (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
         
-        static member ($) (Lens, bc: Prism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> lensWithPrism ab bc : Prism<'a,'c>
+        static member ($) (Lens, (g2, s2): Prism<'b,'c>) =
+            fun ((g1, s1): Lens<'a,'b>) ->
+                (fun a -> g2 (g1 a)),
+                (fun c a -> s1 (s2 c (g1 a)) a) : Prism<'a,'c>
 
-        static member ($) (Lens, bc: Isomorphism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> lensWithIsomorphism ab bc : Lens<'a,'c>
+        static member ($) (Lens, (f, t): Isomorphism<'b,'c>) =
+            fun ((g, s): Lens<'a,'b>) ->
+                (fun a -> f (g a)),
+                (fun c a -> s (t c) a) : Lens<'a,'c>
 
-        static member ($) (Lens, bc: Epimorphism<'b,'c>) =
-            fun (ab: Lens<'a,'b>) -> lensWithEpimorphism ab bc : Prism<'a,'c>
+        static member ($) (Lens, (f, t): Epimorphism<'b,'c>) =
+            fun ((g, s): Lens<'a,'b>) ->
+                (fun a -> f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
 
     /// Compose a lens with another optic
     let inline lens l o =
@@ -182,17 +131,27 @@ module Compose =
     type Prism = 
         | Prism with
 
-        static member ($) (Prism, bc: Lens<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> prismWithLens ab bc : Prism<'a,'c>
+        static member ($) (Prism, (g2, s2): Lens<'b,'c>) =
+            fun ((g1, s1): Prism<'a,'b>) ->
+                (fun a -> Option.map g2 (g1 a)),
+                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
+                                                                 | _ -> a) : Prism<'a,'c>
         
-        static member ($) (Prism, bc: Prism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> prismWithPrism ab bc : Prism<'a,'c>
+        static member ($) (Prism, (g2, s2): Prism<'b,'c>) =
+            fun ((g1, s1): Prism<'a,'b>) ->
+                (fun a -> Option.bind g2 (g1 a)),
+                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
+                                                                 | _ -> a) : Prism<'a,'c>
 
-        static member ($) (Prism, bc: Isomorphism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> prismWithIsomorphism ab bc : Prism<'a,'c>
+        static member ($) (Prism, (f, t): Isomorphism<'b,'c>) =
+            fun ((g, s): Prism<'a,'b>) ->
+                (fun a -> Option.map f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
 
-        static member ($) (Prism, bc: Epimorphism<'b,'c>) =
-            fun (ab: Prism<'a,'b>) -> prismWithEpimorphism ab bc : Prism<'a,'c>
+        static member ($) (Prism, (f, t): Epimorphism<'b,'c>) =
+            fun ((g, s): Prism<'a,'b>) ->
+                (fun a -> Option.bind f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
 
     /// Compose a prism with another optic
     let inline prism p o =
@@ -203,54 +162,92 @@ module Compose =
 [<AutoOpen>]
 module Optics =
 
-    /// Identity lens returning the original item regardless of modification.
-    /// Useful for composing a lens out of a chain of one or more isomorphisms/epimorphisms.
     let id_ : Lens<'a,'a> =
-        (fun x -> x), (fun x _ -> x)
+        (fun x -> x),
+        (fun x _ -> x)
 
     /// Lens to the first item of a tuple
     let fst_ : Lens<('a * 'b),'a> =
-        fst, (fun a t -> a, snd t)
+        fst,
+        (fun a t -> a, snd t)
 
     /// Lens to the second item of a tuple
     let snd_ : Lens<('a * 'b),'b> =
-        snd, (fun b t -> fst t, b)
+        snd,
+        (fun b t -> fst t, b)
 
     [<RequireQualifiedAccess>]
     module Array =
 
         /// Isomorphism to an list
         let list_ : Isomorphism<'v[], 'v list> =
-            Array.toList, Array.ofList
+            Array.toList,
+            Array.ofList
+
+    [<RequireQualifiedAccess>]
+    module Choice =
+
+        /// Prism to Choice1Of2
+        let choice1Of2_ : Prism<Choice<_,_>, _> =
+            (fun x ->
+                match x with
+                | Choice1Of2 v -> Some v 
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Choice1Of2 _ -> Choice1Of2 v
+                | _ -> x)
+
+        /// Prism to Choice2Of2
+        let choice2Of2_ : Prism<Choice<_,_>, _> =
+            (fun x ->
+                match x with
+                | Choice2Of2 v -> Some v
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Choice2Of2 _ -> Choice2Of2 v
+                | _ -> x)
 
     [<RequireQualifiedAccess>]
     module List =
 
         /// Prism to the head of a list
         let head_ : Prism<'v list, 'v> =
-            (function | h :: _ -> Some h | _ -> None),
-            (fun v -> function | _ :: t -> v :: t | l -> l)
+            (function | h :: _ -> Some h
+                      | _ -> None),
+            (fun v ->
+                function | _ :: t -> v :: t 
+                         | l -> l)
 
         /// Prism to an indexed element in a list
         let pos_ (i: int) : Prism<'v list, 'v> =
-            (function | l when List.length l > i -> Some (List.nth l i) | _ -> None),
-            (fun v l -> List.mapi (fun i' x -> if i = i' then v else x) l)
+            (function | l when List.length l > i -> Some (List.nth l i)
+                      | _ -> None),
+            (fun v l ->
+                List.mapi (fun i' x -> if i = i' then v else x) l)
 
         /// Prism to the tail of a list
         let tail_ : Prism<'v list, 'v list> =
-            (function | _ :: t -> Some t | _ -> None),
-            (fun t -> function | h :: _ -> h :: t | [] -> [])
+            (function | _ :: t -> Some t
+                      | _ -> None),
+            (fun t ->
+                function | h :: _ -> h :: t
+                         | [] -> [])
 
         /// Isomorphism to an array
         let array_ : Isomorphism<'v list, 'v[]> =
-            List.toArray, List.ofArray
+            List.toArray,
+            List.ofArray
 
     [<RequireQualifiedAccess>]
     module Map =
 
         /// Prism to a value associated with a key in a map
         let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
-            Map.tryFind k, (fun v x -> if Map.containsKey k x then Map.add k v x else x)
+            Map.tryFind k,
+            (fun v x ->
+                if Map.containsKey k x then Map.add k v x else x)
 
         /// Lens to a value option associated with a key in a map
         let value_ (k: 'k) : Lens<Map<'k,'v>, 'v option> =
@@ -262,31 +259,23 @@ module Optics =
 
         /// Weak Isomorphism to an array of key-value pairs
         let array_ : Isomorphism<Map<'k,'v>, ('k * 'v)[]> =
-            Map.toArray, Map.ofArray
+            Map.toArray,
+            Map.ofArray
 
         /// Weak Isomorphism to a list of key-value pairs
         let list_ : Isomorphism<Map<'k,'v>, ('k * 'v) list> =
-            Map.toList, Map.ofList
+            Map.toList,
+            Map.ofList
 
     [<RequireQualifiedAccess>]
     module Option =
 
         /// Prism to the value in an Option
         let value_ : Prism<'v option, 'v> =
-            id, (fun v -> function | Some _ -> Some v | None -> None)
-
-    [<RequireQualifiedAccess>]
-    module Choice =
-
-        /// Prism to Choice1Of2
-        let choice1Of2_ : Prism<Choice<_,_>, _> =
-            ((fun x -> match x with | Choice1Of2 v -> Some v | _ -> None),
-             (fun v x -> match x with | Choice1Of2 _ -> Choice1Of2 v | _ -> x))
-
-        /// Prism to Choice2Of2
-        let choice2Of2_ : Prism<Choice<_,_>, _> =
-            ((fun x -> match x with | Choice2Of2 v -> Some v | _ -> None),
-             (fun v x -> match x with | Choice2Of2 _ -> Choice2Of2 v | _ -> x))
+            id,
+            (fun v ->
+                function | Some _ -> Some v
+                         | None -> None)
 
 /// Optional custom operators for composing optics. Provided as syntactic
 /// alternatives to more verbose composition functions in `Aether.Compose`.
@@ -315,72 +304,3 @@ module Operators =
     /// Modify a value using a lens
     let inline (^%) f ab =
         Optic.map ab f
-
-    (* Obsolete
-
-       To be removed in 9.0. *)
-
-    /// Compose a lens with a lens, giving a lens
-    [<Obsolete ("Use >- instead.")>]
-    let inline (>-->) l1 l2 =
-        Compose.lensWithLens l1 l2
-
-    /// Compose a lens and a prism, giving a prism
-    [<Obsolete ("Use >- instead.")>]
-    let inline (>-?>) l1 l2 =
-        Compose.lensWithPrism l1 l2
-
-    /// Compose a prism and a lens, giving a prism
-    [<Obsolete ("Use >? instead.")>]
-    let inline (>?->) l1 l2 =
-        Compose.prismWithLens l1 l2
-
-    /// Compose a prism with a prism, giving a prism
-    [<Obsolete ("Use >? instead.")>]
-    let inline (>??>) l1 l2 =
-        Compose.prismWithPrism l1 l2
-
-    /// Compose a lens with an isomorphism, giving a total lens
-    [<Obsolete ("Use >- instead.")>]
-    let inline (<-->) l i =
-        Compose.lensWithIsomorphism l i
-
-    /// Compose a lens with an epimorphism, giving a prism
-    [<Obsolete ("Use >- instead.")>]
-    let inline (<-?>) l i =
-        Compose.lensWithEpimorphism l i
-
-    /// Compose a prism with an isomorphism, giving a prism
-    [<Obsolete ("Use >? instead.")>]
-    let inline (<?->) l i =
-        Compose.prismWithIsomorphism l i
-
-    /// Compose a prism with an epimorphism, giving a prism
-    [<Obsolete ("Use >? instead.")>]
-    let inline (<??>) l i =
-        Compose.prismWithEpimorphism l i
-
-    /// Get a value using a prism
-    [<Obsolete ("Use ^. instead.")>]
-    let inline (^?.) (a: 'a) (l: Prism<'a,'b>) : 'b option =
-        Prism.get l a
-
-    /// Set a value using a prism
-    [<Obsolete ("Use ^= instead.")>]
-    let inline (^?=) (b: 'b) (l: Prism<'a,'b>) : 'a -> 'a =
-        Prism.set l b
-
-    /// Modify a value using a prism
-    [<Obsolete ("Use ^% instead.")>]
-    let inline (^?%) (f: 'b -> 'b) (l: Prism<'a,'b>) : 'a -> 'a =
-        Prism.map l f
-
-    /// Modify a value using a lens
-    [<Obsolete ("Use ^% instead.")>]
-    let inline (^%=) f l=
-        Lens.map f l
-
-    /// Modify a value using a prism
-    [<Obsolete ("Use ^?% instead.")>]
-    let inline (^?%=) f l=
-        Prism.map f l

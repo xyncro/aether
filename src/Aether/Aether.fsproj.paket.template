@@ -3,7 +3,7 @@ id Aether
 title Aether
 description Optics for F#
 tags lens prism isomorphism optic
-version 8.0.0-b7
+version 8.0.0-b8
 authors Andrew Cherry, Marcus Griep
 owners Andrew Cherry
 projectUrl https://github.com/xyncro/aether

@@ -18,6 +18,7 @@ module Data =
         Array.rev, Array.rev
 
 module ``Built-in Lenses`` =
+
     [<Property>]
     let ``id_ follows the Lens Laws`` (outer : obj) inner dummy f =
         Lens.followsLensLaws id_ outer inner dummy f
@@ -116,14 +117,6 @@ module ``Examplar Usage Tests`` =
         test <@ newValue.MyMap.["TestKey"] = "OtherValue" @>
 
     [<Fact>]
-    let ``Trying to retreive a value not contained in a Map with a default using a Prism`` () =
-        test <@ Prism.getOrElse (Map.key_ "TestKey") "Default" Map.empty = "Default" @>
-
-    [<Fact>]
-    let ``Trying to retrieve a value contained in a Map using a Prism`` () =
-        test <@ Prism.getOrElse (Map.key_ "TestKey") "Default" (Map.ofList ["TestKey","Hit"]) = "Hit" @>
-
-    [<Fact>]
     let ``Prepending an element onto a List using a Lens`` () =
         test <@ Lens.map id_ (fun l -> "Head" :: l) ["Tail"] = ["Head"; "Tail"] @>
 
@@ -172,14 +165,6 @@ module ``Basic Prism functions`` =
     [<Fact>]
     let ``Prism.get returns correct value for missing values`` () =
         Prism.get Choice.choice2Of2_ (Choice1Of2 "Bad") =! None
-
-    [<Fact>]
-    let ``Prism.getOrElse returns correct value for existing values`` () =
-        Prism.getOrElse Choice.choice1Of2_ "Bad" (Choice1Of2 "Good") =! "Good"
-
-    [<Fact>]
-    let ``Prism.getOrElse returns correct value for missing values`` () =
-        Prism.getOrElse Choice.choice2Of2_ "Good" (Choice1Of2 "Bad") =! "Good"
 
     [<Fact>]
     let ``Prism.set returns correct values for existing values`` () =
