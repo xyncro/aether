@@ -46,51 +46,51 @@ module Prism =
 [<RequireQualifiedAccess>]
 module Optic =
 
-    type Get =
+    type _Get =
         | Get with
 
-        static member ($) (Get, (g, _): Lens<'a,'b>) =
+        static member (^.) (Get, (g, _): Lens<'a,'b>) =
             fun (a: 'a) ->
                 g a : 'b
 
-        static member ($) (Get, (g, _): Prism<'a,'b>) =
+        static member (^.) (Get, (g, _): Prism<'a,'b>) =
             fun (a: 'a) ->
                 g a : 'b option
 
     /// Get a value using an optic
     let inline get ab a =
-        (Get $ ab) a
+        (Get ^. ab) a
 
-    type Set =
+    type _Set =
         | Set with
 
-        static member ($) (Set, (_, s): Lens<'a,'b>) =
+        static member (^=) (Set, (_, s): Lens<'a,'b>) =
             fun (b: 'b) ->
                 s b : 'a -> 'a
 
-        static member ($) (Set, (_, s): Prism<'a,'b>) =
+        static member (^=) (Set, (_, s): Prism<'a,'b>) =
             fun (b: 'b) ->
                 s b : 'a -> 'a
 
     /// Set a value using an optic
     let inline set ab b =
-        (Set $ ab) b
+        (Set ^= ab) b
 
-    type Map =
+    type _Map =
         | Map with
 
-        static member ($) (Map, (g, s): Lens<'a,'b>) =
+        static member (^%) (Map, (g, s): Lens<'a,'b>) =
             fun (f: 'b -> 'b) ->
                 (fun a -> s (f (g a)) a) : 'a -> 'a
 
-        static member ($) (Map, (g, s): Prism<'a,'b>) =
+        static member (^%) (Map, (g, s): Prism<'a,'b>) =
             fun (f: 'b -> 'b) ->
                 (fun a -> Option.map f (g a) |> function | Some b -> s b a 
                                                          | _ -> a) : 'a -> 'a
 
-    /// Modify a value using a lens
+    /// Modify a value using an optic
     let inline map ab f =
-        (Map $ ab) f
+        (Map ^% ab) f
 
 /// Functions for composing lenses, prisms, and isomorphisms, each of which
 /// returns a new lens or prism based on the lenses, prisms,
@@ -101,61 +101,61 @@ module Optic =
 [<RequireQualifiedAccess>]
 module Compose =
 
-    type Lens =
+    type _Lens =
         | Lens with
 
-        static member ($) (Lens, (g2, s2): Lens<'b,'c>) =
+        static member (>-) (Lens, (g2, s2): Lens<'b,'c>) =
             fun ((g1, s1): Lens<'a,'b>) ->
                 (fun a -> g2 (g1 a)),
                 (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
         
-        static member ($) (Lens, (g2, s2): Prism<'b,'c>) =
+        static member (>-) (Lens, (g2, s2): Prism<'b,'c>) =
             fun ((g1, s1): Lens<'a,'b>) ->
                 (fun a -> g2 (g1 a)),
                 (fun c a -> s1 (s2 c (g1 a)) a) : Prism<'a,'c>
 
-        static member ($) (Lens, (f, t): Isomorphism<'b,'c>) =
+        static member (>-) (Lens, (f, t): Isomorphism<'b,'c>) =
             fun ((g, s): Lens<'a,'b>) ->
                 (fun a -> f (g a)),
                 (fun c a -> s (t c) a) : Lens<'a,'c>
 
-        static member ($) (Lens, (f, t): Epimorphism<'b,'c>) =
+        static member (>-) (Lens, (f, t): Epimorphism<'b,'c>) =
             fun ((g, s): Lens<'a,'b>) ->
                 (fun a -> f (g a)),
                 (fun c a -> s (t c) a) : Prism<'a,'c>
 
     /// Compose a lens with another optic
     let inline lens l o =
-        (Lens $ o) l
+        (Lens >- o) l
 
-    type Prism = 
+    type _Prism = 
         | Prism with
 
-        static member ($) (Prism, (g2, s2): Lens<'b,'c>) =
+        static member (>?) (Prism, (g2, s2): Lens<'b,'c>) =
             fun ((g1, s1): Prism<'a,'b>) ->
                 (fun a -> Option.map g2 (g1 a)),
                 (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
                                                                  | _ -> a) : Prism<'a,'c>
         
-        static member ($) (Prism, (g2, s2): Prism<'b,'c>) =
+        static member (>?) (Prism, (g2, s2): Prism<'b,'c>) =
             fun ((g1, s1): Prism<'a,'b>) ->
                 (fun a -> Option.bind g2 (g1 a)),
                 (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
                                                                  | _ -> a) : Prism<'a,'c>
 
-        static member ($) (Prism, (f, t): Isomorphism<'b,'c>) =
+        static member (>?) (Prism, (f, t): Isomorphism<'b,'c>) =
             fun ((g, s): Prism<'a,'b>) ->
                 (fun a -> Option.map f (g a)),
                 (fun c a -> s (t c) a) : Prism<'a,'c>
 
-        static member ($) (Prism, (f, t): Epimorphism<'b,'c>) =
+        static member (>?) (Prism, (f, t): Epimorphism<'b,'c>) =
             fun ((g, s): Prism<'a,'b>) ->
                 (fun a -> Option.bind f (g a)),
                 (fun c a -> s (t c) a) : Prism<'a,'c>
 
     /// Compose a prism with another optic
     let inline prism p o =
-        (Prism $ o) p
+        (Prism >? o) p
 
 /// Various optics implemented for common types such as tuples,
 /// lists and maps, along with an id_ lens.
