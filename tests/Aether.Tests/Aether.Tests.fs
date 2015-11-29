@@ -106,6 +106,7 @@ module ``Examplar Usage Tests`` =
 
     [<Fact>]
     let ``Updating a value not contained in a Map using a Prism`` () =
+        let o = MapExample.myMap_ >-> Map.key_ "TestKey2"
         let example = { MyMap = Map.ofList ["TestKey","TestValue"]}
         let newValue = Prism.set (MapExample.myMap_ >-> Map.key_ "TestKey2") "OtherValue" example
         test <@ newValue.MyMap.TryFind "TestKey2" = None @>
