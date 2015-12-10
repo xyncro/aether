@@ -2,6 +2,8 @@
 
 open System
 
+/// Optics
+
 /// Lens from 'a -> 'b.
 type Lens<'a,'b> =
     ('a -> 'b) * ('b -> 'a -> 'a)
@@ -10,6 +12,8 @@ type Lens<'a,'b> =
 type Prism<'a,'b> =
     ('a -> 'b option) * ('b -> 'a -> 'a)
 
+/// Morphisms
+
 /// Isomorphism between 'a <> 'b.
 type Isomorphism<'a,'b> =
     ('a -> 'b) * ('b -> 'a)
@@ -17,6 +21,122 @@ type Isomorphism<'a,'b> =
 /// Epimorphism between 'a <> 'b.
 type Epimorphism<'a,'b> =
     ('a -> 'b option) * ('b -> 'a)
+
+/// Functions for composing lenses and prisms with other optics, which
+/// returns a new lens or prism based on the optic composed. Open `Aether.Operators`
+/// to use the infix operator forms of these compositions, which is significantly
+/// less verbose.
+[<RequireQualifiedAccess>]
+module Compose =
+
+    /// Static overloads of the composition function for lenses (>->).
+    /// These functions do not generally need to be called directly, but will
+    /// be used when calling Compose.optic.
+    type Lens =
+        | Lens with
+
+        static member (>->) (Lens, (g2, s2): Lens<'b,'c>) =
+            fun ((g1, s1): Lens<'a,'b>) ->
+                (fun a -> g2 (g1 a)),
+                (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
+        
+        static member (>->) (Lens, (g2, s2): Prism<'b,'c>) =
+            fun ((g1, s1): Lens<'a,'b>) ->
+                (fun a -> g2 (g1 a)),
+                (fun c a -> s1 (s2 c (g1 a)) a) : Prism<'a,'c>
+
+        static member (>->) (Lens, (f, t): Isomorphism<'b,'c>) =
+            fun ((g, s): Lens<'a,'b>) ->
+                (fun a -> f (g a)),
+                (fun c a -> s (t c) a) : Lens<'a,'c>
+
+        static member (>->) (Lens, (f, t): Epimorphism<'b,'c>) =
+            fun ((g, s): Lens<'a,'b>) ->
+                (fun a -> f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
+
+    /// Compose a lens with an optic or morphism.
+    let inline lens l o =
+        (Lens >-> o) l
+
+    /// Static overloads of the composition function for prisms (>?>).
+    /// These functions do not generally need to be called directly, but will
+    /// be used when calling Compose.optic.
+    type Prism = 
+        | Prism with
+
+        static member (>?>) (Prism, (g2, s2): Lens<'b,'c>) =
+            fun ((g1, s1): Prism<'a,'b>) ->
+                (fun a -> Option.map g2 (g1 a)),
+                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
+                                                                 | _ -> a) : Prism<'a,'c>
+
+        static member (>?>) (Prism, (g2, s2): Prism<'b,'c>) =
+            fun ((g1, s1): Prism<'a,'b>) ->
+                (fun a -> Option.bind g2 (g1 a)),
+                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
+                                                                 | _ -> a) : Prism<'a,'c>
+
+        static member (>?>) (Prism, (f, t): Isomorphism<'b,'c>) =
+            fun ((g, s): Prism<'a,'b>) ->
+                (fun a -> Option.map f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
+
+        static member (>?>) (Prism, (f, t): Epimorphism<'b,'c>) =
+            fun ((g, s): Prism<'a,'b>) ->
+                (fun a -> Option.bind f (g a)),
+                (fun c a -> s (t c) a) : Prism<'a,'c>
+
+    /// Compose a prism with an optic or morphism.
+    let inline prism p o =
+        (Prism >?> o) p
+
+    (* Obsolete
+
+       Backwards compatibility shims to make the 2.x-> 3.x transition
+       less painful, providing functionally equivalent options where possible.
+
+       To be removed for 9.x releases. *)
+
+    /// Compose a lens with a lens, giving a lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let inline lensWithLens l1 l2 =
+        lens l1 l2
+
+    /// Compose a lens with a prism, giving a prism
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let inline lensWithPrism l1 p1 =
+        lens l1 p1
+
+    /// Compose a lens with an isomorphism, giving a lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let inline lensWithIsomorphism l1 i1 =
+        lens l1 i1
+
+    /// Compose a lens with a partial isomorphism, giving a prism
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let inline lensWithPartialIsomorphism l1 e1 =
+        lens l1 e1
+
+    /// Compose a prism and a lens, giving a prism
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let inline prismWithLens p1 l1 =
+        prism p1 l1
+
+    /// Compose a prism with a prism, giving a prism
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let inline prismWithPrism p1 p2 =
+        prism p1 p2
+
+    /// Compose a prism with an isomorphism, giving a prism
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let inline prismWithIsomorphism p1 i1 =
+        prism p1 i1
+
+    /// Compose a lens with a partial isomorphism, giving a prism
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let inline prismWithPartialIsomorphism p1 e1 =
+        prism p1 e1
 
 /// Functions for using optics to operate on data structures, using the basic optic
 /// operations of get, set and map. The functions are overloaded to take either lenses or
@@ -41,8 +161,9 @@ module Optic =
     let inline get ab a =
         (Get ^. ab) a
 
-    /// Static overloads of the optic set function (^=). These functions do not generally
-    /// need to be called directly, but will be used when calling Optic.set.
+    /// Static overloads of the optic set function (^=). These functions do
+    /// not generally need to be called directly, but will be used when calling
+    /// Optic.set.
     type Set =
         | Set with
 
@@ -135,122 +256,6 @@ module Prism =
     [<Obsolete ("Use Optic.map instead.")>]
     let inline map p =
         Optic.map p
-
-/// Functions for composing lenses and prisms with other optics, which
-/// returns a new lens or prism based on the optic composed. Open `Aether.Operators`
-/// to use the infix operator forms of these compositions, which is significantly
-/// less verbose.
-[<RequireQualifiedAccess>]
-module Compose =
-
-    /// Static overloads of the composition function for lenses (>->).
-    /// These functions do not generally need to be called directly, but will
-    /// be used when calling Compose.optic.
-    type Lens =
-        | Lens with
-
-        static member (>->) (Lens, (g2, s2): Lens<'b,'c>) =
-            fun ((g1, s1): Lens<'a,'b>) ->
-                (fun a -> g2 (g1 a)),
-                (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
-        
-        static member (>->) (Lens, (g2, s2): Prism<'b,'c>) =
-            fun ((g1, s1): Lens<'a,'b>) ->
-                (fun a -> g2 (g1 a)),
-                (fun c a -> s1 (s2 c (g1 a)) a) : Prism<'a,'c>
-
-        static member (>->) (Lens, (f, t): Isomorphism<'b,'c>) =
-            fun ((g, s): Lens<'a,'b>) ->
-                (fun a -> f (g a)),
-                (fun c a -> s (t c) a) : Lens<'a,'c>
-
-        static member (>->) (Lens, (f, t): Epimorphism<'b,'c>) =
-            fun ((g, s): Lens<'a,'b>) ->
-                (fun a -> f (g a)),
-                (fun c a -> s (t c) a) : Prism<'a,'c>
-
-    /// Compose a lens with another optic.
-    let inline lens l o =
-        (Lens >-> o) l
-
-    /// Static overloads of the composition function for prisms (>?>).
-    /// These functions do not generally need to be called directly, but will
-    /// be used when calling Compose.optic.
-    type Prism = 
-        | Prism with
-
-        static member (>?>) (Prism, (g2, s2): Lens<'b,'c>) =
-            fun ((g1, s1): Prism<'a,'b>) ->
-                (fun a -> Option.map g2 (g1 a)),
-                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
-                                                                 | _ -> a) : Prism<'a,'c>
-        
-        static member (>?>) (Prism, (g2, s2): Prism<'b,'c>) =
-            fun ((g1, s1): Prism<'a,'b>) ->
-                (fun a -> Option.bind g2 (g1 a)),
-                (fun c a -> Option.map (s2 c) (g1 a) |> function | Some b -> s1 b a
-                                                                 | _ -> a) : Prism<'a,'c>
-
-        static member (>?>) (Prism, (f, t): Isomorphism<'b,'c>) =
-            fun ((g, s): Prism<'a,'b>) ->
-                (fun a -> Option.map f (g a)),
-                (fun c a -> s (t c) a) : Prism<'a,'c>
-
-        static member (>?>) (Prism, (f, t): Epimorphism<'b,'c>) =
-            fun ((g, s): Prism<'a,'b>) ->
-                (fun a -> Option.bind f (g a)),
-                (fun c a -> s (t c) a) : Prism<'a,'c>
-
-    /// Compose a prism with another optic.
-    let inline prism p o =
-        (Prism >?> o) p
-
-    (* Obsolete
-
-       Backwards compatibility shims to make the 2.x-> 3.x transition
-       less painful, providing functionally equivalent options where possible.
-
-       To be removed for 9.x releases. *)
-
-    /// Compose a lens with a lens, giving a lens
-    [<Obsolete ("Use Compose.lens instead.")>]
-    let inline lensWithLens l1 l2 =
-        lens l1 l2
-
-    /// Compose a lens with a prism, giving a prism
-    [<Obsolete ("Use Compose.lens instead.")>]
-    let inline lensWithPrism l1 p1 =
-        lens l1 p1
-
-    /// Compose a lens with an isomorphism, giving a lens
-    [<Obsolete ("Use Compose.lens instead.")>]
-    let inline lensWithIsomorphism l1 i1 =
-        lens l1 i1
-
-    /// Compose a lens with a partial isomorphism, giving a prism
-    [<Obsolete ("Use Compose.lens instead.")>]
-    let inline lensWithPartialIsomorphism l1 e1 =
-        lens l1 e1
-
-    /// Compose a prism and a lens, giving a prism
-    [<Obsolete ("Use Compose.prism instead.")>]
-    let inline prismWithLens p1 l1 =
-        prism p1 l1
-
-    /// Compose a prism with a prism, giving a prism
-    [<Obsolete ("Use Compose.prism instead.")>]
-    let inline prismWithPrism p1 p2 =
-        prism p1 p2
-
-    /// Compose a prism with an isomorphism, giving a prism
-    [<Obsolete ("Use Compose.prism instead.")>]
-    let inline prismWithIsomorphism p1 i1 =
-        prism p1 i1
-
-    /// Compose a lens with a partial isomorphism, giving a prism
-    [<Obsolete ("Use Compose.prism instead.")>]
-    let inline prismWithPartialIsomorphism p1 e1 =
-        prism p1 e1
 
 /// Various optics implemented for common types such as tuples,
 /// lists and maps, along with an identity lens.
@@ -373,15 +378,16 @@ module Optics =
                 function | Some _ -> Some v
                          | None -> None)
 
-/// Optional custom operators for working with optics. Provides more concise syntactic
-/// options for working with the functions in the `Compose` and `Optic` modules.
+/// Optional custom operators for working with optics. Provides more concise
+/// syntactic options for working with the functions in the `Compose` and
+/// `Optic` modules.
 module Operators =
 
-    /// Compose a lens with another optic.
+    /// Compose a lens with an optic or morphism.
     let inline (>->) l o =
         Compose.lens l o
 
-    /// Compose a prism with another optic.
+    /// Compose a prism with an optic or morphism.
     let inline (>?>) p o =
         Compose.prism p o
 

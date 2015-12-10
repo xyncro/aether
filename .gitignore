@@ -101,6 +101,7 @@ _TeamCity*
 *.ncrunch*
 _NCrunch_*
 .*crunch*.local.xml
+*nCrunch*
 
 # MightyMoose
 *.mm.*
@@ -179,3 +180,6 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# FSharp Lint
+*.FSharpLint
