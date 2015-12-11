@@ -321,7 +321,7 @@ module Optics =
                 function | _ :: t -> v :: t 
                          | l -> l)
 
-        /// Prism to an indexed element in a list.
+        /// Prism to an indexed position in a list.
         let pos_ (i: int) : Prism<'v list, 'v> =
             (function | l when List.length l > i -> Some (List.nth l i)
                       | _ -> None),
