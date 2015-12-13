@@ -11,7 +11,7 @@ Aether is an Optics library for F#, similar to the Haskell Data.Lens package. Se
 Aether can be installed from [NuGet](https://www.nuget.org/packages/aether "Aether on NuGet"). Using the Package Manager Console:
 
 ```batch
-PM > Install-Package Aether
+PM> Install-Package Aether
 ```
 
 ## License
