@@ -34,7 +34,7 @@ Operators for composition have also been dramatically simplified, as they match 
 
 ### Operations
 
-The old distinct sets of functions for operations, with different methods for lensed and prisms (previously called partial lenses) have been unified:
+The old distinct sets of functions for operations, with different methods for lenses and prisms (previously called partial lenses) have been unified:
 
 ```fsharp
 // Old
