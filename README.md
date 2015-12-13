@@ -4,7 +4,7 @@
 
 ## What is Aether?
 
-Aether is an Optics library for F#, similar to the Haskell Data.Lens package. See the [Aether Site][aether] for more information, including guides, reference material, updates, etc.
+[Aether][aether] is an Optics library for F#, similar to the Haskell Data.Lens package. See the dedicated [Aether Site][aether] for more information, including guides, reference material, updates, etc.
 
 ## Installation
 
