@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>7037cd5b-c478-43b1-82c3-9415c70969f8</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Aether.Profile259</RootNamespace>
+    <RootNamespace>Aether</RootNamespace>
     <AssemblyName>Aether</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>

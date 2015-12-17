@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>45802ac9-0777-4079-b3f9-9f25ca10dc14</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Aether.Net35</RootNamespace>
+    <RootNamespace>Aether</RootNamespace>
     <AssemblyName>Aether</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>2.3.0.0</TargetFSharpCoreVersion>
