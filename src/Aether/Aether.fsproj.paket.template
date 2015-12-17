@@ -1,12 +1,30 @@
 ﻿type project
-id Aether
-title Aether
-description Optics for F#
-tags lens prism isomorphism optic
-version 8.0.0
-authors Andrew Cherry, Marcus Griep
-owners Andrew Cherry
-projectUrl https://xyncro.tech/aether
-licenseUrl https://github.com/xyncro/aether/blob/master/LICENSE.md
-requireLicenseAcceptance false
-copyright Copyright Xyncro Ltd 2014
+id
+    Aether
+title
+    Aether
+description
+    Optics for F#
+tags
+    lens, prism, isomorphism, optic
+version
+    8.0.0
+owners
+    Andrew Cherry
+authors
+    Andrew Cherry, Marcus Griep
+copyright
+    Copyright Xyncro Ltd 2014
+projectUrl
+    https://xyncro.tech/aether
+licenseUrl
+    https://github.com/xyncro/aether/blob/master/LICENSE.md
+requireLicenseAcceptance
+    false
+files
+    ../../targets/Aether.Net35/bin/Aether.dll ==> lib/net35
+    ../../targets/Aether.Net35/bin/Aether.xml ==> lib/net35
+    ../../targets/Aether.Net35/bin/Aether.pdb ==> lib/net35
+    ../../targets/Aether.Profile259/bin/Aether.dll ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
+    ../../targets/Aether.Profile259/bin/Aether.xml ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
+    ../../targets/Aether.Profile259/bin/Aether.pdb ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
