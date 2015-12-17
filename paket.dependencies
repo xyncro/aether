@@ -11,7 +11,6 @@ group Test
   framework: >= net45
   source http://nuget.org/api/v2
 
-  nuget FSharp.Core 3.1.2.5 redirects: on
   nuget FsCheck
   nuget FsCheck.Xunit
   nuget Unquote
