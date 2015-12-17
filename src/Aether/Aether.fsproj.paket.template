@@ -8,7 +8,7 @@ description
 tags
     lens, prism, isomorphism, optic
 version
-    8.0.0
+    8.0.1
 owners
     Andrew Cherry
 authors
@@ -22,6 +22,7 @@ licenseUrl
 requireLicenseAcceptance
     false
 files
+    !./bin/*.*
     ../../targets/Aether.Net35/bin/Aether.dll ==> lib/net35
     ../../targets/Aether.Net35/bin/Aether.xml ==> lib/net35
     ../../targets/Aether.Net35/bin/Aether.pdb ==> lib/net35
