@@ -1,7 +1,7 @@
 # Aether
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/xyncro/aether?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build](https://ci.appveyor.com/api/projects/status/uch7r4f3ivnb5bxe?svg=true)](https://ci.appveyor.com/project/kolektiv/aether)
+[![Build](https://ci.appveyor.com/api/projects/status/3jl24iaac9ka3ov2?svg=true)](https://ci.appveyor.com/project/xyncro/aether)
 
 
 ## What is Aether?
