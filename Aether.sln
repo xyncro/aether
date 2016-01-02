@@ -17,10 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "paket", "paket", "{BFE96D89
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "references", "references", "{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fake", "fake", "{CB532515-2668-4D57-90E2-5F8490F25E90}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{CB532515-2668-4D57-90E2-5F8490F25E90}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
-		build.fsx = build.fsx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{6EF31BDD-DCC5-4220-A2CE-31F1CD8965DE}"
