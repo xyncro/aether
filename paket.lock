@@ -2,14 +2,17 @@
 
 GROUP Build
 NUGET
-  remote: http://nuget.org/api/v2
+  remote: http://www.nuget.org/api/v2
   specs:
     FAKE (4.10.5)
-
+GITHUB
+  remote: xyncro/build
+  specs:
+    build.fsx (1ef06d448999e0c0a04b8a35948a5afccfdbfbec)
 GROUP Test
 FRAMEWORK: >= NET45
 NUGET
-  remote: http://nuget.org/api/v2
+  remote: http://www.nuget.org/api/v2
   specs:
     FsCheck (2.2.3)
       FSharp.Core (>= 3.1.2.5)

@@ -6,6 +6,7 @@ temp
 
 # Paket
 .paket/paket.exe
+paket-files
 
 # User-specific files
 *.suo

@@ -5,6 +5,7 @@ group Build
   source http://nuget.org/api/v2
 
   nuget Fake
+  github xyncro/build build.fsx
 
 group Test
 
