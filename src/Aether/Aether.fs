@@ -2,7 +2,7 @@
 
 open System
 
-/// Optics
+//  Optics
 
 /// Lens from 'a -> 'b.
 type Lens<'a,'b> =
@@ -12,7 +12,7 @@ type Lens<'a,'b> =
 type Prism<'a,'b> =
     ('a -> 'b option) * ('b -> 'a -> 'a)
 
-/// Morphisms
+//  Morphisms
 
 /// Isomorphism between 'a <> 'b.
 type Isomorphism<'a,'b> =
@@ -98,42 +98,42 @@ module Compose =
 
        To be removed for 9.x releases. *)
 
-    /// Compose a lens with a lens, giving a lens
+    /// Compose a lens with a lens, giving a lens.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithLens l1 l2 =
         lens l1 l2
 
-    /// Compose a lens with a prism, giving a prism
+    /// Compose a lens with a prism, giving a prism.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithPrism l1 p1 =
         lens l1 p1
 
-    /// Compose a lens with an isomorphism, giving a lens
+    /// Compose a lens with an isomorphism, giving a lens.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithIsomorphism l1 i1 =
         lens l1 i1
 
-    /// Compose a lens with a partial isomorphism, giving a prism
+    /// Compose a lens with a partial isomorphism, giving a prism.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithPartialIsomorphism l1 e1 =
         lens l1 e1
 
-    /// Compose a prism and a lens, giving a prism
+    /// Compose a prism and a lens, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithLens p1 l1 =
         prism p1 l1
 
-    /// Compose a prism with a prism, giving a prism
+    /// Compose a prism with a prism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithPrism p1 p2 =
         prism p1 p2
 
-    /// Compose a prism with an isomorphism, giving a prism
+    /// Compose a prism with an isomorphism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithIsomorphism p1 i1 =
         prism p1 i1
 
-    /// Compose a lens with a partial isomorphism, giving a prism
+    /// Compose a prism with a partial isomorphism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithPartialIsomorphism p1 e1 =
         prism p1 e1
@@ -158,8 +158,8 @@ module Optic =
                 g a : 'b option
 
     /// Get a value using an optic.
-    let inline get ab a =
-        (Get ^. ab) a
+    let inline get optic target =
+        (Get ^. optic) target
 
     /// Static overloads of the optic set function (^=). These functions do
     /// not generally need to be called directly, but will be used when calling
@@ -176,8 +176,8 @@ module Optic =
                 s b : 'a -> 'a
 
     /// Set a value using an optic.
-    let inline set ab b =
-        (Set ^= ab) b
+    let inline set optic value =
+        (Set ^= optic) value
 
     /// Static overloads of the optic map function (%=). These functions do not generally
     /// need to be called directly, but will be used when calling Optic.map.
@@ -194,8 +194,8 @@ module Optic =
                                                          | _ -> a) : 'a -> 'a
 
     /// Modify a value using an optic.
-    let inline map ab f =
-        (Map ^% ab) f
+    let inline map optic f =
+        (Map ^% optic) f
 
 /// Functions for creating or using lenses.
 [<RequireQualifiedAccess>]
@@ -267,7 +267,7 @@ module Optics =
         (fun x -> x),
         (fun x _ -> x)
 
-    /// Isomorphism between a boxed and unboxed type
+    /// Isomorphism between a boxed and unboxed type.
     let box_<'a> : Isomorphism<obj,'a> =
         unbox<'a>, box
 
@@ -400,16 +400,16 @@ module Operators =
         Compose.prism p o
 
     /// Get a value using an optic.
-    let inline (^.) a ab =
-        Optic.get ab a
+    let inline (^.) target optic =
+        Optic.get optic target
 
     /// Set a value using an optic.
-    let inline (^=) b ab =
-        Optic.set ab b
+    let inline (^=) value optic =
+        Optic.set optic value
 
     /// Modify a value using an optic.
-    let inline (^%) f ab =
-        Optic.map ab f
+    let inline (^%) f optic =
+        Optic.map optic f
 
     (* Obsolete
 
@@ -428,7 +428,7 @@ module Operators =
     let inline (>-?>) l1 l2 =
         Compose.lens l1 l2
 
-    /// Compose a lens with an isomorphism, giving a total lens.
+    /// Compose a lens with an isomorphism, giving a lens.
     [<Obsolete ("Use >-> instead.")>]
     let inline (<-->) l i =
         Compose.lens l i
