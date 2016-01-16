@@ -2,7 +2,7 @@
 
 open System
 
-/// Optics
+//  Optics
 
 /// Lens from 'a -> 'b.
 type Lens<'a,'b> =
@@ -12,7 +12,7 @@ type Lens<'a,'b> =
 type Prism<'a,'b> =
     ('a -> 'b option) * ('b -> 'a -> 'a)
 
-/// Morphisms
+//  Morphisms
 
 /// Isomorphism between 'a <> 'b.
 type Isomorphism<'a,'b> =
@@ -98,42 +98,42 @@ module Compose =
 
        To be removed for 9.x releases. *)
 
-    /// Compose a lens with a lens, giving a lens
+    /// Compose a lens with a lens, giving a lens.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithLens l1 l2 =
         lens l1 l2
 
-    /// Compose a lens with a prism, giving a prism
+    /// Compose a lens with a prism, giving a prism.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithPrism l1 p1 =
         lens l1 p1
 
-    /// Compose a lens with an isomorphism, giving a lens
+    /// Compose a lens with an isomorphism, giving a lens.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithIsomorphism l1 i1 =
         lens l1 i1
 
-    /// Compose a lens with a partial isomorphism, giving a prism
+    /// Compose a lens with a partial isomorphism, giving a prism.
     [<Obsolete ("Use Compose.lens instead.")>]
     let inline lensWithPartialIsomorphism l1 e1 =
         lens l1 e1
 
-    /// Compose a prism and a lens, giving a prism
+    /// Compose a prism and a lens, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithLens p1 l1 =
         prism p1 l1
 
-    /// Compose a prism with a prism, giving a prism
+    /// Compose a prism with a prism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithPrism p1 p2 =
         prism p1 p2
 
-    /// Compose a prism with an isomorphism, giving a prism
+    /// Compose a prism with an isomorphism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithIsomorphism p1 i1 =
         prism p1 i1
 
-    /// Compose a lens with a partial isomorphism, giving a prism
+    /// Compose a prism with a partial isomorphism, giving a prism.
     [<Obsolete ("Use Compose.prism instead.")>]
     let inline prismWithPartialIsomorphism p1 e1 =
         prism p1 e1
@@ -267,7 +267,7 @@ module Optics =
         (fun x -> x),
         (fun x _ -> x)
 
-    /// Isomorphism between a boxed and unboxed type
+    /// Isomorphism between a boxed and unboxed type.
     let box_<'a> : Isomorphism<obj,'a> =
         unbox<'a>, box
 
@@ -428,7 +428,7 @@ module Operators =
     let inline (>-?>) l1 l2 =
         Compose.lens l1 l2
 
-    /// Compose a lens with an isomorphism, giving a total lens.
+    /// Compose a lens with an isomorphism, giving a lens.
     [<Obsolete ("Use >-> instead.")>]
     let inline (<-->) l i =
         Compose.lens l i
