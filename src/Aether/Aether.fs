@@ -158,8 +158,8 @@ module Optic =
                 g a : 'b option
 
     /// Get a value using an optic.
-    let inline get ab a =
-        (Get ^. ab) a
+    let inline get optic target =
+        (Get ^. optic) target
 
     /// Static overloads of the optic set function (^=). These functions do
     /// not generally need to be called directly, but will be used when calling
@@ -176,8 +176,8 @@ module Optic =
                 s b : 'a -> 'a
 
     /// Set a value using an optic.
-    let inline set ab b =
-        (Set ^= ab) b
+    let inline set optic value =
+        (Set ^= optic) value
 
     /// Static overloads of the optic map function (%=). These functions do not generally
     /// need to be called directly, but will be used when calling Optic.map.
@@ -194,8 +194,8 @@ module Optic =
                                                          | _ -> a) : 'a -> 'a
 
     /// Modify a value using an optic.
-    let inline map ab f =
-        (Map ^% ab) f
+    let inline map optic f =
+        (Map ^% optic) f
 
 /// Functions for creating or using lenses.
 [<RequireQualifiedAccess>]
@@ -400,16 +400,16 @@ module Operators =
         Compose.prism p o
 
     /// Get a value using an optic.
-    let inline (^.) a ab =
-        Optic.get ab a
+    let inline (^.) target optic =
+        Optic.get optic target
 
     /// Set a value using an optic.
-    let inline (^=) b ab =
-        Optic.set ab b
+    let inline (^=) value optic =
+        Optic.set optic value
 
     /// Modify a value using an optic.
-    let inline (^%) f ab =
-        Optic.map ab f
+    let inline (^%) f optic =
+        Optic.map optic f
 
     (* Obsolete
 
