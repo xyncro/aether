@@ -22,6 +22,25 @@ type Isomorphism<'a,'b> =
 type Epimorphism<'a,'b> =
     ('a -> 'b option) * ('b -> 'a)
 
+(* Obsolete
+
+    Backwards compatibility shims to make the 2.x-> 3.x transition
+    less painful, providing functionally equivalent options where possible.
+
+    To be removed for 9.x releases. *)
+
+/// Partial lens from a -> b
+[<Obsolete ("Use Prism<'a, 'b> instead.")>]
+type PLens<'a,'b> = Prism<'a, 'b>
+
+/// Total isomorphism of a <> b
+[<Obsolete ("Use Isomorphism<'a, 'b> instead.")>]
+type Iso<'a,'b> = Isomorphism<'a, 'b>
+
+/// Partial isomorphism of a <> b
+[<Obsolete ("Use Epimorphism<'a, 'b> instead.")>]
+type PIso<'a,'b> = Epimorphism<'a, 'b>
+
 /// Functions for composing lenses and prisms with other optics, which
 /// returns a new lens or prism based on the optic composed. Open `Aether.Operators`
 /// to use the infix operator forms of these compositions, which is significantly
@@ -138,6 +157,46 @@ module Compose =
     let inline prismWithPartialIsomorphism p1 e1 =
         prism p1 e1
 
+    /// Compose a total lens and a total lens, giving a total lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let totalLensTotalLens (l1: Lens<'a,'b>) (l2: Lens<'b,'c>) : Lens<'a,'c> =
+        lens l1 l2
+
+    /// Compose a total lens and a partial lens, giving a partial lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let totalLensPartialLens (l1: Lens<'a,'b>) (p1: Prism<'b,'c>) : Prism<'a,'c> =
+        lens l1 p1
+
+    /// Compose a partial lens and a total lens, giving a partial lens
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let partialLensTotalLens (p1: Prism<'a,'b>) (l1: Lens<'b,'c>) : Prism<'a,'c> =
+        prism p1 l1
+
+    /// Compose two partial lenses, giving a partial lens
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let partialLensPartialLens (p1: Prism<'a,'b>) (p2: Prism<'b,'c>) : Prism<'a,'c> =
+        prism p1 p2
+
+    /// Compose a total lens with a total isomorphism, giving a total lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let totalLensTotalIsomorphism (l1: Lens<'a,'b>) (i1: Isomorphism<'b,'c>) : Lens<'a,'c> =
+        lens l1 i1
+
+    /// Compose a total lens with a partial isomorphism, giving a partial lens
+    [<Obsolete ("Use Compose.lens instead.")>]
+    let totalLensPartialIsomorphism (l1: Lens<'a,'b>) (p1: Epimorphism<'b,'c>) : Prism<'a,'c> =
+        lens l1 p1
+
+    /// Compose a partial lens with a total isomorphism, giving a partial lens
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let partialLensTotalIsomorphism (p1: Prism<'a,'b>) (i1: Isomorphism<'b, 'c>) : Prism<'a,'c> =
+        prism p1 i1
+
+    /// Compose a partial lens with a partial isomorphism, giving a partial lens
+    [<Obsolete ("Use Compose.prism instead.")>]
+    let partialLensPartialIsomorphism (p1: Prism<'a,'b>) (e1: Epimorphism<'b,'c>) : Prism<'a,'c> =
+        prism p1 e1
+
 /// Functions for using optics to operate on data structures, using the basic optic
 /// operations of get, set and map. The functions are overloaded to take either lenses or
 /// prisms, with the return type being inferred.
@@ -217,15 +276,35 @@ module Lens =
     let inline get l =
         Optic.get l
 
+    /// Get a value option using a partial lens
+    [<Obsolete ("Use Optic.get instead.")>]
+    let getPartial (p: Prism<'a,'b>) =
+        Optic.get p
+
+    /// Get a value or a default using a partial lens
+    [<Obsolete ("Use Optic.get instead. Compose it with some Option.orElse implementation, not provided by Aether.")>]
+    let getPartialOrElse (p: Prism<'a,'b>) =
+        fun b -> Optic.get p >> (function | Some b -> b | _ -> b)
+
     /// Set a value using a lens.
     [<Obsolete ("Use Optic.set instead.")>]
     let inline set l =
         Optic.set l
 
+    /// Set a value using a partial lens
+    [<Obsolete ("Use Optic.set instead.")>]
+    let setPartial (p: Prism<'a,'b>) =
+        Optic.set p
+
     /// Map a value using a lens.
     [<Obsolete ("Use Optic.map instead.")>]
     let inline map l =
         Optic.map l
+
+    /// Modify a value using a partial lens
+    [<Obsolete ("Use Optic.map instead.")>]
+    let mapPartial (p: Prism<'a,'b>) = 
+        Optic.map p
 
 /// Functions for creating or using prisms.
 [<RequireQualifiedAccess>]
@@ -386,6 +465,49 @@ module Optics =
                 function | Some _ -> Some v
                          | None -> None)
 
+(* Obsolete
+
+    Backwards compatibility shims to make the 2.x-> 3.x transition
+    less painful, providing functionally equivalent options where possible.
+
+    To be removed for 9.x releases. *)
+
+/// Identity lens returning the original item regardless of modifiction
+[<Obsolete ("Use Optics.id_ instead.")>]
+let id_ : Lens<'a,'a> =
+    Optics.id_
+
+/// First item of a tuple giving a total lens
+[<Obsolete ("Use Optics.fst_ instead.")>]
+let fst_ : Lens<('a * 'b),'a> =
+    Optics.fst_
+        
+/// Second item of a tuple giving a total lens
+[<Obsolete ("Use Optics.snd_ instead.")>]
+let snd_ : Lens<('a * 'b),'b> =
+    Optics.snd_
+
+/// Head of a list giving a partial lens
+[<Obsolete ("Use Optics.List.head_ instead.")>]
+let head_ : Prism<'v list, 'v> =
+    Optics.List.head_
+
+/// Position of a list giving a partial lens
+[<Obsolete ("Use Optics.List.pos_ instead.")>]
+let pos_ (i: int) : Prism<'v list, 'v> =
+    Optics.List.pos_ i
+
+/// Tail of a list giving a partial lens
+[<Obsolete ("Use Optics.List.tail_ instead.")>]
+let tail_ : Prism<'v list, 'v list> =
+    Optics.List.tail_
+
+/// Key of a map giving a partial lens
+[<Obsolete ("Use Optics.Map.key_ instead.")>]
+let key_ (k: 'k) : Prism<Map<'k,'v>,'v> =
+    Optics.Map.key_ k
+
+
 /// Optional custom operators for working with optics. Provides more concise
 /// syntactic options for working with the functions in the `Compose` and
 /// `Optic` modules.
@@ -467,6 +589,11 @@ module Operators =
     [<Obsolete ("Use ^= instead.")>]
     let inline (^?=) b p =
         Optic.set p b
+
+    /// Modify a value using a total lens
+    [<Obsolete ("Use ^% instead.")>]
+    let (^%=) (f: 'b -> 'b) (l: Lens<'a,'b>) : 'a -> 'a =
+        Optic.map l f
 
     /// Modify a value using a prism.
     [<Obsolete ("Use ^% instead.")>]
