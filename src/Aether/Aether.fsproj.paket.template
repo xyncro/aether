@@ -8,11 +8,11 @@ description
 tags
     lens, prism, isomorphism, optic
 version
-    8.1.1
+    8.1.2
 owners
     Andrew Cherry
 authors
-    Andrew Cherry, Marcus Griep
+    Andrew Cherry, Marcus Griep, Max Malook
 copyright
     Copyright Xyncro Ltd 2014
 projectUrl
