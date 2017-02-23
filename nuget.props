@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>8.1.3</VersionPrefix>
+    <VersionPrefix>8.2.0</VersionPrefix>
     <Authors>Andrew Cherry, Marcus Griep, Max Malook</Authors>
     <Summary>Optics for F#</Summary>
     <Copyright>Copyright © Xyncro Ltd</Copyright>
