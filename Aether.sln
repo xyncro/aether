@@ -1,91 +1,56 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E28FCB2A-F9EC-425E-A7E1-27F96994517F}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8BF175C9-3344-42DA-A7C7-C07D5F8B23DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C541CA6B-1CAF-42B2-90FD-49D90ADF5B23}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{ECFCE8E0-C625-4883-BE15-163F6AE3876F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sln", "sln", "{290F7751-13C8-4266-BB47-A41DD7AB0E08}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E0C20C3C-2737-453F-B7BE-C7C1AB41BA5B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "paket", "paket", "{BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-		paket.lock = paket.lock
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "references", "references", "{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{CB532515-2668-4D57-90E2-5F8490F25E90}"
-	ProjectSection(SolutionItems) = preProject
-		build.cmd = build.cmd
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{6EF31BDD-DCC5-4220-A2CE-31F1CD8965DE}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{3FA2F0E1-6274-4794-9B08-ADB8757FFD9D}"
-	ProjectSection(SolutionItems) = preProject
-		tests\Aether.Tests\Aether.tests.fsproj.paket.references = tests\Aether.Tests\Aether.tests.fsproj.paket.references
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E43BD3EF-1FAB-43D0-8E31-3227C446D71E}"
-	ProjectSection(SolutionItems) = preProject
-		src\Aether\Aether.fsproj.paket.template = src\Aether\Aether.fsproj.paket.template
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "targets", "targets", "{091990E1-4A6A-4498-9387-913510F08AB6}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Net35", "targets\Aether.Net35\Aether.Net35.fsproj", "{45802AC9-0777-4079-B3F9-9F25CA10DC14}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Profile259", "targets\Aether.Profile259\Aether.Profile259.fsproj", "{7037CD5B-C478-43B1-82C3-9415C70969F8}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{BB9DD962-A7DE-4841-9040-912B03BE2AFD}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net35", "net35", "{1FB50C1B-B827-4626-9037-6BAC488C9067}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "profile259", "profile259", "{92980936-40F7-4930-B3D4-F36B5834C1B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{45802AC9-0777-4079-B3F9-9F25CA10DC14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{45802AC9-0777-4079-B3F9-9F25CA10DC14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{45802AC9-0777-4079-B3F9-9F25CA10DC14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{45802AC9-0777-4079-B3F9-9F25CA10DC14}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7037CD5B-C478-43B1-82C3-9415C70969F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7037CD5B-C478-43B1-82C3-9415C70969F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7037CD5B-C478-43B1-82C3-9415C70969F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7037CD5B-C478-43B1-82C3-9415C70969F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB9DD962-A7DE-4841-9040-912B03BE2AFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB9DD962-A7DE-4841-9040-912B03BE2AFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB9DD962-A7DE-4841-9040-912B03BE2AFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB9DD962-A7DE-4841-9040-912B03BE2AFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|x64.ActiveCfg = Debug|x64
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|x64.Build.0 = Debug|x64
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|x86.ActiveCfg = Debug|x86
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Debug|x86.Build.0 = Debug|x86
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|x64.ActiveCfg = Release|x64
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|x64.Build.0 = Release|x64
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|x86.ActiveCfg = Release|x86
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F}.Release|x86.Build.0 = Release|x86
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|x64.ActiveCfg = Debug|x64
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|x64.Build.0 = Debug|x64
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|x86.ActiveCfg = Debug|x86
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Debug|x86.Build.0 = Debug|x86
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|x64.ActiveCfg = Release|x64
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|x64.Build.0 = Release|x64
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|x86.ActiveCfg = Release|x86
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
-		{8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD} = {BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}
-		{CB532515-2668-4D57-90E2-5F8490F25E90} = {290F7751-13C8-4266-BB47-A41DD7AB0E08}
-		{6EF31BDD-DCC5-4220-A2CE-31F1CD8965DE} = {BFE96D89-B163-4A9E-BA2B-D4022F9FCB6D}
-		{3FA2F0E1-6274-4794-9B08-ADB8757FFD9D} = {8D4717F2-871F-4BD5-89A1-EB3C8E8F0CAD}
-		{E43BD3EF-1FAB-43D0-8E31-3227C446D71E} = {6EF31BDD-DCC5-4220-A2CE-31F1CD8965DE}
-		{50A0C23E-6CAB-4E8B-8263-3ACE946A79C8} = {E28FCB2A-F9EC-425E-A7E1-27F96994517F}
-		{45802AC9-0777-4079-B3F9-9F25CA10DC14} = {1FB50C1B-B827-4626-9037-6BAC488C9067}
-		{7037CD5B-C478-43B1-82C3-9415C70969F8} = {92980936-40F7-4930-B3D4-F36B5834C1B3}
-		{BB9DD962-A7DE-4841-9040-912B03BE2AFD} = {C541CA6B-1CAF-42B2-90FD-49D90ADF5B23}
-		{1FB50C1B-B827-4626-9037-6BAC488C9067} = {091990E1-4A6A-4498-9387-913510F08AB6}
-		{92980936-40F7-4930-B3D4-F36B5834C1B3} = {091990E1-4A6A-4498-9387-913510F08AB6}
+		{ECFCE8E0-C625-4883-BE15-163F6AE3876F} = {8BF175C9-3344-42DA-A7C7-C07D5F8B23DC}
+		{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F} = {E0C20C3C-2737-453F-B7BE-C7C1AB41BA5B}
 	EndGlobalSection
 EndGlobal

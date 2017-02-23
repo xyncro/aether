@@ -17,76 +17,82 @@ module Data =
     let rev : Isomorphism<char[], char[]> =
         Array.rev, Array.rev
 
+    let times2 = (*) 2
+    let maybeInt = function
+        | Some x when x % 2 = 0 -> Some (x * 3)
+        | Some _ -> None
+        | None -> Some 1
+
 module ``Built-in Lenses`` =
 
     [<Property>]
-    let ``id_ follows the Lens Laws`` (outer : obj) inner dummy f =
-        Lens.followsLensLaws id_ outer inner dummy f
+    let ``id_ follows the Lens Laws`` (outer : int) inner dummy =
+        Lens.followsLensLaws id_ outer inner dummy times2
 
     [<Property>]
-    let ``fst_ follows the Lens Laws`` (outer : obj * obj) inner dummy f =
-        Lens.followsLensLaws fst_ outer inner dummy f
+    let ``fst_ follows the Lens Laws`` (outer : int * int) inner dummy =
+        Lens.followsLensLaws fst_ outer inner dummy times2
 
     [<Property>]
-    let ``snd_ follows the Lens Laws`` (outer : obj * obj) inner dummy f =
-        Lens.followsLensLaws snd_ outer inner dummy f
+    let ``snd_ follows the Lens Laws`` (outer : int * int) inner dummy =
+        Lens.followsLensLaws snd_ outer inner dummy times2
 
     [<Property>]
-    let ``Map.value_ follows the Lens Laws`` key (outer: Map<string,obj>) inner dummy f =
-        Lens.followsLensLaws (Map.value_ key) outer inner dummy f
+    let ``Map.value_ follows the Lens Laws`` key (outer: Map<string,int>) inner dummy =
+        Lens.followsLensLaws (Map.value_ key) outer inner dummy maybeInt
 
 module ``Built-in Prisms`` =
     [<Property>]
-    let ``Choice.choice1Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
-        Prism.followsPrismLaws Choice.choice1Of2_ outer inner dummy f
+    let ``Choice.choice1Of2_ follows the Prism Laws`` (outer : Choice<int,int>) inner dummy =
+        Prism.followsPrismLaws Choice.choice1Of2_ outer inner dummy times2
 
     [<Property>]
-    let ``Choice.choice2Of2_ follows the Prism Laws`` (outer : Choice<obj,obj>) inner dummy f =
-        Prism.followsPrismLaws Choice.choice2Of2_ outer inner dummy f
+    let ``Choice.choice2Of2_ follows the Prism Laws`` (outer : Choice<int,int>) inner dummy =
+        Prism.followsPrismLaws Choice.choice2Of2_ outer inner dummy times2
 
     [<Property>]
-    let ``Option.value_ follows the Prism Laws`` (outer : obj option) inner dummy f =
-        Prism.followsPrismLaws Option.value_ outer inner dummy f
+    let ``Option.value_ follows the Prism Laws`` (outer : int option) inner dummy =
+        Prism.followsPrismLaws Option.value_ outer inner dummy times2
 
     [<Property>]
-    let ``List.head_ follows the Prism Laws`` (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws List.head_ outer inner dummy f
+    let ``List.head_ follows the Prism Laws`` (outer : int list) inner dummy =
+        Prism.followsPrismLaws List.head_ outer inner dummy times2
 
     [<Property>]
-    let ``List.tail_ follows the Prism Laws`` (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws List.tail_ outer inner dummy f
+    let ``List.tail_ follows the Prism Laws`` (outer : int list) inner dummy =
+        Prism.followsPrismLaws List.tail_ outer inner dummy
 
     [<Property>]
-    let ``List.pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : obj list) inner dummy f =
-        Prism.followsPrismLaws (List.pos_ idx.Get) outer inner dummy f
+    let ``List.pos_ follows the Prism Laws`` (idx : NonNegativeInt) (outer : int list) inner dummy =
+        Prism.followsPrismLaws (List.pos_ idx.Get) outer inner dummy times2
 
     [<Property>]
-    let ``Map.key_ follows the Prism Laws`` key (outer : Map<string,obj>) inner dummy f =
-        Prism.followsPrismLaws (Map.key_ key) outer inner dummy f
+    let ``Map.key_ follows the Prism Laws`` key (outer : Map<string,int>) inner dummy =
+        Prism.followsPrismLaws (Map.key_ key) outer inner dummy int
 
 module ``Built-in Isomorphisms`` =
     [<Property>]
-    let ``Map.list_ follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
+    let ``Map.list_ follows the Weak Isomorphism Laws`` (outer : Map<string,int>) inner dummy =
         Isomorphism.followsWeakIsomorphismLaws Map.list_ outer inner dummy
 
     [<Property>]
-    let ``Map.array_ follows the Weak Isomorphism Laws`` (outer : Map<string,obj>) inner dummy =
+    let ``Map.array_ follows the Weak Isomorphism Laws`` (outer : Map<string,int>) inner dummy =
         Isomorphism.followsWeakIsomorphismLaws Map.array_ outer inner dummy
 
     [<Property>]
-    let ``Array.list_ follows the Isomorphism Laws`` (outer : obj []) inner dummy f =
-        Isomorphism.followsIsomorphismLaws Array.list_ outer inner dummy f
+    let ``Array.list_ follows the Isomorphism Laws`` (outer : int []) inner dummy =
+        Isomorphism.followsIsomorphismLaws Array.list_ outer inner dummy (List.map times2)
 
     [<Property>]
-    let ``List.array_ follows the Isomorphism Laws`` (outer : obj list) inner dummy f =
-        Isomorphism.followsIsomorphismLaws List.array_ outer inner dummy f
+    let ``List.array_ follows the Isomorphism Laws`` (outer : int list) inner dummy =
+        Isomorphism.followsIsomorphismLaws List.array_ outer inner dummy (Array.map times2)
 
     [<Property>]
-    let ``Choice.choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,obj>,obj>) inner dummy =
+    let ``Choice.choice1Of2_ mapped through Map(toList/ofList) as a partial isomorphism follows the Weak Partial Isomorphism Laws`` (outer : Choice<Map<string,int>,int>) inner dummy =
         Epimorphism.followsWeakEpimorphismLaws ((fst Choice.choice1Of2_ >> Option.map Map.toList),(Map.ofList >> Choice1Of2)) outer inner dummy
 
     [<Property>]
-    let ``Choice.choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<obj,obj>) inner dummy =
+    let ``Choice.choice1Of2_ as a partial isomorphism follows the Partial Isomorphism Laws`` (outer : Choice<int,int>) inner dummy =
         Epimorphism.followsEpimorphismLaws (fst Choice.choice1Of2_,Choice1Of2) outer inner dummy
 
 type MapExample =

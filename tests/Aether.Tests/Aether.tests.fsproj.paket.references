@@ -1,6 +1,0 @@
-group Test
-
-  FsCheck
-  FsCheck.Xunit
-  Unquote
-  xunit
