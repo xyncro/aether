@@ -394,6 +394,31 @@ module Optics =
                 | _ -> x)
 
     [<RequireQualifiedAccess>]
+    module Result =
+
+        /// Prism to Ok.
+        let ok_ : Prism<Result<_,_>, _> =
+            (fun x ->
+                match x with
+                | Ok v -> Some v
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Ok _ -> Ok v
+                | _ -> x)
+
+        /// Prism to Error.
+        let error_ : Prism<Result<_,_>, _> =
+            (fun x ->
+                match x with
+                | Error v -> Some v
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Error _ -> Error v
+                | _ -> x)
+
+    [<RequireQualifiedAccess>]
     module List =
 
         /// Prism to the head of a list.
