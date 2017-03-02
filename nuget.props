@@ -8,6 +8,6 @@
     <PackageProjectUrl>https://xyncro.tech/aether/</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/xyncro/aether</RepositoryUrl>
-    <Tags>lens;prism;isomorphism;optic;f#;fsharp</Tags>
+    <PackageTags>lens;prism;isomorphism;optic;f#;fsharp</PackageTags>
   </PropertyGroup>
 </Project>
