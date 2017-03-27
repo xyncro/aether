@@ -1,7 +1,4 @@
-version: 8.1.3-aci-{build}
-image: Visual Studio 2017 RC
-environment:
-  CLI_VERSION: 1.0.0-rc4-004842
+version: 8.2.0-aci-{build}
 
 build_script:
   - ps: dotnet --info
