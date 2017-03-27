@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <VersionPrefix>8.2.0</VersionPrefix>
+    <Authors>Andrew Cherry, Marcus Griep, Max Malook</Authors>
+    <Description>Optics for F#</Description>
+    <Copyright>Copyright © Xyncro Ltd</Copyright>
+    <PackageLicenseUrl>https://github.com/xyncro/aether/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://xyncro.tech/aether/</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/xyncro/aether</RepositoryUrl>
+    <PackageTags>$(PackageTags);lens;prism;isomorphism;optic;f#;fsharp</PackageTags>
+  </PropertyGroup>
+</Project>

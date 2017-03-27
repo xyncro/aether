@@ -58,7 +58,7 @@ module Compose =
             fun ((g1, s1): Lens<'a,'b>) ->
                 (fun a -> g2 (g1 a)),
                 (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
-        
+
         static member (>->) (Lens, (g2, s2): Prism<'b,'c>) =
             fun ((g1, s1): Lens<'a,'b>) ->
                 (fun a -> g2 (g1 a)),
@@ -81,7 +81,7 @@ module Compose =
     /// Static overloads of the composition function for prisms (>?>).
     /// These functions do not generally need to be called directly, but will
     /// be used when calling Compose.optic.
-    type Prism = 
+    type Prism =
         | Prism with
 
         static member (>?>) (Prism, (g2, s2): Lens<'b,'c>) =
@@ -249,7 +249,7 @@ module Optic =
 
         static member (^%) (Map, (g, s): Prism<'a,'b>) =
             fun (f: 'b -> 'b) ->
-                (fun a -> Option.map f (g a) |> function | Some b -> s b a 
+                (fun a -> Option.map f (g a) |> function | Some b -> s b a
                                                          | _ -> a) : 'a -> 'a
 
     /// Modify a value using an optic.
@@ -303,7 +303,7 @@ module Lens =
 
     /// Modify a value using a partial lens
     [<Obsolete ("Use Optic.map instead.")>]
-    let mapPartial (p: Prism<'a,'b>) = 
+    let mapPartial (p: Prism<'a,'b>) =
         Optic.map p
 
 /// Functions for creating or using prisms.
@@ -375,7 +375,7 @@ module Optics =
         let choice1Of2_ : Prism<Choice<_,_>, _> =
             (fun x ->
                 match x with
-                | Choice1Of2 v -> Some v 
+                | Choice1Of2 v -> Some v
                 | _ -> None),
             (fun v x ->
                 match x with
@@ -394,6 +394,31 @@ module Optics =
                 | _ -> x)
 
     [<RequireQualifiedAccess>]
+    module Result =
+
+        /// Prism to Ok.
+        let ok_ : Prism<Result<_,_>, _> =
+            (fun x ->
+                match x with
+                | Ok v -> Some v
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Ok _ -> Ok v
+                | _ -> x)
+
+        /// Prism to Error.
+        let error_ : Prism<Result<_,_>, _> =
+            (fun x ->
+                match x with
+                | Error v -> Some v
+                | _ -> None),
+            (fun v x ->
+                match x with
+                | Error _ -> Error v
+                | _ -> x)
+
+    [<RequireQualifiedAccess>]
     module List =
 
         /// Prism to the head of a list.
@@ -401,7 +426,7 @@ module Optics =
             (function | h :: _ -> Some h
                       | _ -> None),
             (fun v ->
-                function | _ :: t -> v :: t 
+                function | _ :: t -> v :: t
                          | l -> l)
 
         /// Prism to an indexed position in a list.
@@ -481,7 +506,7 @@ let id_ : Lens<'a,'a> =
 [<Obsolete ("Use Optics.fst_ instead.")>]
 let fst_ : Lens<('a * 'b),'a> =
     Optics.fst_
-        
+
 /// Second item of a tuple giving a total lens
 [<Obsolete ("Use Optics.snd_ instead.")>]
 let snd_ : Lens<('a * 'b),'b> =

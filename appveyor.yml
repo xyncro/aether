@@ -1,0 +1,13 @@
+version: 8.2.0-aci-{build}
+
+build_script:
+  - ps: dotnet --info
+  - ps: dotnet restore
+  - ps: dotnet build -c Release --version-suffix "aci-${env:APPVEYOR_BUILD_NUMBER}"
+  - ps: dotnet test -c Release tests/Aether.Tests/Aether.Tests.fsproj
+  - ps: dotnet pack -c Release --include-symbols --version-suffix "aci-${env:APPVEYOR_BUILD_NUMBER}"
+
+test: off
+
+artifacts:
+  - path: '**\*.nupkg'
