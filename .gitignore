@@ -183,3 +183,5 @@ FakesAssemblies/
 
 # FSharp Lint
 *.FSharpLint
+
+**/project.lock.json
