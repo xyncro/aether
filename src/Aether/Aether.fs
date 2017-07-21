@@ -1,4 +1,4 @@
-﻿module Aether
+module Aether
 
 open System
 
@@ -56,22 +56,22 @@ module Compose =
 
         static member (>->) (Lens, (g2, s2): Lens<'b,'c>) =
             fun ((g1, s1): Lens<'a,'b>) ->
-                (fun a -> g2 (g1 a)),
+                (g1 >> g2),
                 (fun c a -> s1 (s2 c (g1 a)) a) : Lens<'a,'c>
 
         static member (>->) (Lens, (g2, s2): Prism<'b,'c>) =
             fun ((g1, s1): Lens<'a,'b>) ->
-                (fun a -> g2 (g1 a)),
+                (g1 >> g2),
                 (fun c a -> s1 (s2 c (g1 a)) a) : Prism<'a,'c>
 
         static member (>->) (Lens, (f, t): Isomorphism<'b,'c>) =
             fun ((g, s): Lens<'a,'b>) ->
-                (fun a -> f (g a)),
+                (g >> f),
                 (fun c a -> s (t c) a) : Lens<'a,'c>
 
         static member (>->) (Lens, (f, t): Epimorphism<'b,'c>) =
             fun ((g, s): Lens<'a,'b>) ->
-                (fun a -> f (g a)),
+                (g >> f),
                 (fun c a -> s (t c) a) : Prism<'a,'c>
 
     /// Compose a lens with an optic or morphism.
@@ -343,7 +343,7 @@ module Optics =
 
     // Lens for the identity function (does not change the focus of operation).
     let id_ : Lens<'a,'a> =
-        (fun x -> x),
+        id,
         (fun x _ -> x)
 
     /// Isomorphism between a boxed and unboxed type.
