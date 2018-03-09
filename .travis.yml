@@ -23,9 +23,9 @@ matrix:
 script: 
   - dotnet --info
   - dotnet restore
-  - dotnet build -c Release"
+  - dotnet build -c Release
   - dotnet test -c Release tests/Aether.Tests/Aether.Tests.fsproj
-  - dotnet pack -c Release --include-symbols"
+  - dotnet pack -c Release --include-symbols
 
 branches:
   except:
