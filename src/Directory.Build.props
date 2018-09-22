@@ -1,4 +1,5 @@
-<Project>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <VersionPrefix>8.2.0</VersionPrefix>
     <Authors>Andrew Cherry, Marcus Griep, Max Malook</Authors>
@@ -11,3 +12,4 @@
     <PackageTags>$(PackageTags);lens;prism;isomorphism;optic;f#;fsharp</PackageTags>
   </PropertyGroup>
 </Project>
+

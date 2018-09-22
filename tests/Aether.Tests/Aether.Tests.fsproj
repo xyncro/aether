@@ -1,27 +1,24 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="Aether.Testing.fs" />
     <Compile Include="Aether.Tests.fs" />
-    <Compile Include="Main.fs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.NET.Sdk" Version="1.*" PrivateAssets="All" />
-    <PackageReference Include="FSharp.Core" Version="4.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.*" />
-    <PackageReference Include="xunit" Version="2.2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.*" />
-    <PackageReference Include="Unquote" Version="3.*" />
-    <PackageReference Include="FsCheck.Xunit" Version="2.*" />
-    <PackageReference Include="FsCheck" Version="2.*" />
+    <PackageReference Include="xunit" Version="2.3.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.*" />
+    <PackageReference Include="Unquote" Version="4.*" />
+    <PackageReference Include="FsCheck.Xunit" Version="3.0.0-*" />
+    <PackageReference Include="FsCheck" Version="3.0.0-*" />
   </ItemGroup>
 
   <ItemGroup>
