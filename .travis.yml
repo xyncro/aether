@@ -24,8 +24,8 @@ script:
   - dotnet --info
   - dotnet restore
   - dotnet build -c Release
-  - dotnet test -c Release tests/Aether.Tests/Aether.Tests.fsproj
-  - dotnet pack -c Release --include-symbols
+  - dotnet test --no-build -c Release tests/Aether.Tests/Aether.Tests.fsproj
+  - dotnet pack --no-build -c Release --include-symbols
 
 branches:
   except:
