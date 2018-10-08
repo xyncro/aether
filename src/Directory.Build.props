@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <VersionPrefix>8.3.0</VersionPrefix>
+    <VersionPrefix>8.3.1</VersionPrefix>
     <Authors>Andrew Cherry, Marcus Griep, Max Malook</Authors>
     <Description>Optics for F#</Description>
     <Copyright>Copyright © Xyncro Ltd</Copyright>
