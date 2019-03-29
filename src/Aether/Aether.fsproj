@@ -4,6 +4,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs" PackagePath="fable\" />
     <Compile Include="Aether.fs" />
   </ItemGroup>
   <ItemGroup>
