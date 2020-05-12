@@ -16,6 +16,20 @@ Aether can be installed from [NuGet](https://www.nuget.org/packages/aether "Aeth
 PM> Install-Package Aether
 ```
 
+You can also install directly from GitHub using [Paket](https://fsprojects.github.io/Paket/). This will work with [Fable](https://fable.io/). 
+
+Add this line to your `paket.dependencies`:
+
+```
+github xyncro/aether:8.3.1 src/Aether/Aether.fs
+```
+
+And add this to your `paket.references`:
+
+```
+File: Aether.fs
+```
+
 ## License
 
 Aether is under the MIT license.
