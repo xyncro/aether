@@ -16,6 +16,8 @@ if ($env:appveyor){
     Update-AppveyorBuild -Version "$version$versionSuffix"
 }
 
+dotnet tool restore
+dotnet paket install
 dotnet build -c Release Aether.sln /p:Version=$version$versionSuffix
 dotnet test --no-build -c Release tests/Aether.Tests/Aether.Tests.fsproj
 dotnet pack --no-build -c Release /p:Version=$version$versionSuffix -o $psscriptroot/bin

@@ -24,6 +24,8 @@ matrix:
 
 script: 
   - dotnet --info
+  - dotnet tool restore
+  - dotnet paket install
   - dotnet restore
   - dotnet build -c Release
   - dotnet test --no-build -c Release tests/Aether.Tests/Aether.Tests.fsproj

@@ -8,8 +8,29 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Aether", "src\Aether\Aether.fsproj", "{ECFCE8E0-C625-4883-BE15-163F6AE3876F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E0C20C3C-2737-453F-B7BE-C7C1AB41BA5B}"
+ProjectSection(SolutionItems) = preProject
+	tests\paket.references = tests\paket.references
+EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aether.Tests", "tests\Aether.Tests\Aether.Tests.fsproj", "{8D4C4731-E0B5-4F88-ADBC-A93E2693B07F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "paket", "paket", "{A38AF99E-7A8E-4B7F-9042-43BE0D15F529}"
+ProjectSection(SolutionItems) = preProject
+	paket.dependencies = paket.dependencies
+	paket.lock = paket.lock
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{42329D55-DE88-4CB3-B3D6-C146860852A0}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	.gitignore = .gitignore
+	.travis.yml = .travis.yml
+	appveyor.yml = appveyor.yml
+	build.ps1 = build.ps1
+	LICENSE.md = LICENSE.md
+	README.md = README.md
+	RELEASE_NOTES.md = RELEASE_NOTES.md
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

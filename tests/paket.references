@@ -1,0 +1,6 @@
+﻿Microsoft.NET.Test.Sdk
+xunit
+xunit.runner.visualstudio
+Unquote
+FsCheck.Xunit
+FsCheck

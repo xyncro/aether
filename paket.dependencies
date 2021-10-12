@@ -1,0 +1,11 @@
+source https://api.nuget.org/v3/index.json
+
+storage: none
+framework: netstandard2.0, netcoreapp3.1
+
+nuget Microsoft.NET.Test.Sdk
+nuget xunit
+nuget xunit.runner.visualstudio
+nuget Unquote
+nuget FsCheck.Xunit
+nuget FsCheck
